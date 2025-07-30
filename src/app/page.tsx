@@ -1,9 +1,11 @@
 'use client'
 import { useState } from 'react';
 import { NavLinks } from './componentes/navEncavezado';
+import LoginButton from './modals/loginModal';
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -25,13 +27,8 @@ export default function HomePage() {
           {/* Menú desktop */}
           <NavLinks mode="desktop" />
 
-          {/* Login (siempre visible) */}
-          <a
-            href="/login"
-            className="bg-white text-blue-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-100 ml-4"
-          >
-            Iniciar sesión
-          </a>
+          {/* Login */}
+          <LoginButton/>
         </div>
 
         {/* Menú móvil */}
@@ -104,6 +101,11 @@ export default function HomePage() {
         <p>© {new Date().getFullYear()} Comité de Agua Potable Catachilla Alta</p>
         <p className="text-sm">Sistema desarrollado por Alex GC</p>
       </footer>
+
+      {/*Funciones*/}
+      {showLoginModal && (
+        <LoginModal/>
+      )}
     </div>
   );
 }
