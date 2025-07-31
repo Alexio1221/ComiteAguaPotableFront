@@ -1,31 +1,26 @@
-import { Dialog, Transition } from "@headlessui/react";
+"use client";
+
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ExclamationTriangleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 
-export default function LoginButton() {
+export default function LoginModal() {
   const [isOpen, setIsOpen] = useState(false);
-
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  function openModal() {
-    setIsOpen(true);
-  }
 
   return (
     <>
       <button
-        onClick={openModal}
-        className="flex items-center bg-white text-blue-700 px-4 py-2 rounded-md font-semibold hover:bg-gray-100 ml-4 gap-2"
+        onClick={() => setIsOpen(true)}
+        className="flex px-4 py-2 bg-blue-700 text-white rounded-md font-semibold hover:bg-blue-800 justify-center gap-1"
       >
-        <ArrowRightOnRectangleIcon className="h-5 w-5" />
+        <UserCircleIcon className="h-6 w-6" />
         Iniciar sesión
+        
       </button>
 
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
-          <Transition.Child
+      <Transition show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
+          <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -34,60 +29,80 @@ export default function LoginButton() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
+            <div className="fixed inset-0 bg-black bg-opacity-60" />
+          </TransitionChild>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Iniciar sesión
-                  </Dialog.Title>
-                  <div className="mt-2">
-                    <form>
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <TransitionChild
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <DialogPanel className="relative w-full max-w-[500px] rounded-lg overflow-hidden">
+                {/* Imagen de fondo */}
+                <div
+                  className="relative bg-cover bg-center px-5 py-10"
+                  style={{ backgroundImage: `url('/imagenes/loginImagen.webp')` }} // Asegúrate de poner esta imagen en /public
+                >
+                  {/* Fondo oscurecido */}
+                  <div className="absolute inset-0 bg-black bg-opacity-20" />
+
+                  {/* Contenido */}
+                  <div className="relative z-10 text-white text-center">
+                    <DialogTitle className="text-2xl font-bold mb-1">
+                      Iniciar sesión
+                    </DialogTitle>
+
+                    <div className="flex justify-center space-x-2 mb-6">
+                      <p className="text-sm">Solo miembros autorizados del comité</p>
+                      <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />
+                    </div>
+
+
+                    <form className="flex flex-col items-center space-y-4">
                       <input
-                        type="email"
-                        placeholder="Correo electrónico"
-                        className="w-full mb-3 p-2 border border-gray-300 rounded"
+                        type="text"
+                        placeholder="Usuario"
+                        className="w-full max-w-md px-4 py-2 rounded-full text-black bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-opacity-85"
+                        required
                       />
                       <input
                         type="password"
                         placeholder="Contraseña"
-                        className="w-full mb-3 p-2 border border-gray-300 rounded"
+                        className="w-full max-w-md px-4 py-2 rounded-full text-black bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-opacity-85"
+                        required
                       />
+
                       <button
                         type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+                        className="mt-4 w-full max-w-md bg-blue-600 text-white py-2 rounded-full font-semibold hover:bg-blue-700 bg-opacity-85"
                       >
-                        Entrar
+                        INGRESAR
                       </button>
+
+                      <a
+                        href="#"
+                        className="text-sm underline text-white hover:text-blue-300"
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </a>
                     </form>
                   </div>
 
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      className="text-sm text-blue-500 hover:underline"
-                      onClick={closeModal}
-                    >
-                      Cerrar
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
+                  {/* Botón de cerrar */}
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="absolute top-4 right-4 text-white hover:text-gray-300"
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </Dialog>
       </Transition>

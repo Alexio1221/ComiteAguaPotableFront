@@ -1,11 +1,10 @@
 'use client'
 import { useState } from 'react';
 import { NavLinks } from './componentes/navEncavezado';
-import LoginButton from './modals/loginModal';
+import LoginModal from './modals/loginModal';
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col items-center">
@@ -28,7 +27,7 @@ export default function HomePage() {
           <NavLinks mode="desktop" />
 
           {/* Login */}
-          <LoginButton/>
+          <LoginModal/>
         </div>
 
         {/* Menú móvil */}
@@ -103,9 +102,7 @@ export default function HomePage() {
       </footer>
 
       {/*Funciones*/}
-      {showLoginModal && (
-        <LoginModal/>
-      )}
+      
     </div>
   );
 }
