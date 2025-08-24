@@ -3,6 +3,7 @@
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { XMarkIcon, ExclamationTriangleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { FormularioLogin } from "../componentes/formularioLogin";
 
 export default function LoginModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,36 +62,8 @@ export default function LoginModal() {
                       <p className="text-sm">Solo miembros autorizados del comité</p>
                       <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />
                     </div>
-
-
-                    <form className="flex flex-col items-center space-y-4">
-                      <input
-                        type="text"
-                        placeholder="Usuario"
-                        className="w-full max-w-md px-4 py-2 rounded-full text-black bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-opacity-85"
-                        required
-                      />
-                      <input
-                        type="password"
-                        placeholder="Contraseña"
-                        className="w-full max-w-md px-4 py-2 rounded-full text-black bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-opacity-85"
-                        required
-                      />
-
-                      <button
-                        type="submit"
-                        className="mt-4 w-full max-w-md bg-blue-600 text-white py-2 rounded-full font-semibold hover:bg-blue-700 bg-opacity-85"
-                      >
-                        INGRESAR
-                      </button>
-
-                      <a
-                        href="#"
-                        className="text-sm underline text-white hover:text-blue-300"
-                      >
-                        ¿Olvidaste tu contraseña?
-                      </a>
-                    </form>
+                    
+                    <FormularioLogin />
                   </div>
 
                   {/* Botón de cerrar */}
