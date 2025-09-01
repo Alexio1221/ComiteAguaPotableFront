@@ -13,6 +13,68 @@ const bounds: [[number, number], [number, number]] = [
   [-17.40097, -65.96821], // noreste
 ];
 
+// Componente para crear la máscara roja fuera del área permitida
+function RestrictedAreaMask() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    // Coordenadas del área permitida
+    const [[minLat, minLng], [maxLat, maxLng]] = bounds;
+    
+    // Crear un polígono que cubra todo el mundo menos el área permitida
+    // Usamos coordenadas extremas para asegurar cobertura total
+    const worldBounds: [number, number][] = [
+      [-90, -180],  // Polo sur, oeste extremo
+      [-90, 180],   // Polo sur, este extremo  
+      [90, 180],    // Polo norte, este extremo
+      [90, -180],   // Polo norte, oeste extremo
+      [-90, -180]   // Cerrar el polígono
+    ];
+
+    // Área permitida (como un "agujero" en el polígono mundial)
+    const allowedArea: [number, number][] = [
+      [minLat, minLng],
+      [minLat, maxLng], 
+      [maxLat, maxLng],
+      [maxLat, minLng],
+      [minLat, minLng] // Cerrar el polígono
+    ];
+
+    // Crear polígono con agujero (mundo completo menos área permitida)
+    const restrictedPolygon = L.polygon([worldBounds, allowedArea] as L.LatLngExpression[][], {
+      color: 'red',
+      fillColor: 'red',
+      fillOpacity: 0.3,
+      weight: 0, // Sin borde
+      interactive: false // No interfiere con las interacciones del usuario
+    });
+
+    // Agregar al mapa
+    restrictedPolygon.addTo(map);
+
+    // Opcional: Agregar un borde al área permitida para mayor claridad
+    const allowedAreaBorder = L.rectangle([[minLat, minLng], [maxLat, maxLng]] as L.LatLngBoundsExpression, {
+      color: 'green',
+      fillOpacity: 0,
+      weight: 3,
+      dashArray: '10, 5',
+      interactive: false
+    });
+
+    allowedAreaBorder.addTo(map);
+
+    // Cleanup
+    return () => {
+      map.removeLayer(restrictedPolygon);
+      map.removeLayer(allowedAreaBorder);
+    };
+  }, [map]);
+
+  return null;
+}
+
 // Componente separado para manejar los controles de dibujo
 function DrawControl({ onDibujos }: { onDibujos: (dibujos: any[]) => void }) {
   const map = useMap();
@@ -40,30 +102,30 @@ function DrawControl({ onDibujos }: { onDibujos: (dibujos: any[]) => void }) {
         remove: true
       },
       draw: {
-        polygon: {
+        polygon: {  //poligono
           allowIntersection: false,
           drawError: {
-            color: '#e1e100',
+            color: '#000000',
             message: '<strong>Error:</strong> Las líneas no pueden cruzarse!'
           },
           shapeOptions: {
-            color: '#97009c'
+            color: '#040B69'
           }
         },
         rectangle: {
           shapeOptions: {
-            color: '#97009c'
+            color: '#00FF15'
           }
         },
         circle: {
           shapeOptions: {
-            color: '#662d91'
+            color: '#FF0000'
           }
         },
         marker: true,
-        polyline: {
+        polyline: {   //linea
           shapeOptions: {
-            color: '#f357a1',
+            color: '#00FBFF',
             weight: 3
           }
         },
@@ -228,60 +290,77 @@ export default function MapaDelimitado() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
+        {/* Agregar la máscara roja */}
+        <RestrictedAreaMask />
+        
         <DrawControl onDibujos={handleDibujos} />
       </MapContainer>
       
-      {/* Mostrar información de dibujos */}
-      {dibujos.length > 0 && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
-          <h3 className="font-semibold mb-2">
-            Dibujos realizados: {dibujos.length}
-          </h3>
-          <div className="flex gap-2 mb-2 flex-wrap">
-            <button 
-              onClick={() => console.log("Todos los dibujos:", dibujos)}
-              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-            >
-              Ver en Console
-            </button>
-            <button 
-              onClick={() => {
-                const jsonString = JSON.stringify(dibujos, null, 2);
-                navigator.clipboard.writeText(jsonString);
-                alert("Datos copiados al portapapeles!");
-              }}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-            >
-              Copiar JSON
-            </button>
-            <button 
-              onClick={() => {
-                setDibujos([]);
-                window.location.reload();
-              }}
-              className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-            >
-              Limpiar Todo
-            </button>
+      {/* Panel de información */}
+      <div className="mt-4 p-4 bg-gray-100 rounded">
+        <div className="mb-3 text-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-4 h-4 bg-red-500 bg-opacity-30 border border-red-500"></div>
+            <span>Área restringida (no se puede dibujar)</span>
           </div>
-          <div className="mb-2 text-sm text-gray-600">
-            Tipos: {dibujos.map((d, i) => (
-              <span key={i} className="inline-block bg-gray-200 rounded px-2 py-1 mr-1 mb-1">
-                {(d as any).layerType || d.geometry?.type || 'unknown'}
-                {(d as any).radius && ` (${Math.round((d as any).radius)}m)`}
-              </span>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-green-500 border-dashed"></div>
+            <span>Área permitida para dibujar</span>
           </div>
-          <details className="text-xs">
-            <summary className="cursor-pointer font-medium">
-              Ver datos JSON (click para expandir)
-            </summary>
-            <pre className="mt-2 p-2 bg-gray-200 rounded overflow-auto max-h-32">
-              {JSON.stringify(dibujos, null, 2)}
-            </pre>
-          </details>
         </div>
-      )}
+        
+        {dibujos.length > 0 && (
+          <>
+            <h3 className="font-semibold mb-2">
+              Dibujos realizados: {dibujos.length}
+            </h3>
+            <div className="flex gap-2 mb-2 flex-wrap">
+              <button 
+                onClick={() => console.log("Todos los dibujos:", dibujos)}
+                className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              >
+                Ver en Console
+              </button>
+              <button 
+                onClick={() => {
+                  const jsonString = JSON.stringify(dibujos, null, 2);
+                  navigator.clipboard.writeText(jsonString);
+                  alert("Datos copiados al portapapeles!");
+                }}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              >
+                Copiar JSON
+              </button>
+              <button 
+                onClick={() => {
+                  setDibujos([]);
+                  window.location.reload();
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+              >
+                Limpiar Todo
+              </button>
+            </div>
+            <div className="mb-2 text-sm text-gray-600">
+              Tipos: {dibujos.map((d, i) => (
+                <span key={i} className="inline-block bg-gray-200 rounded px-2 py-1 mr-1 mb-1">
+                  {(d as any).layerType || d.geometry?.type || 'unknown'}
+                  {(d as any).radius && ` (${Math.round((d as any).radius)}m)`}
+                </span>
+              ))}
+            </div>
+            <details className="text-xs">
+              <summary className="cursor-pointer font-medium">
+                Ver datos JSON (click para expandir)
+              </summary>
+              <pre className="mt-2 p-2 bg-gray-200 rounded overflow-auto max-h-32">
+                {JSON.stringify(dibujos, null, 2)}
+              </pre>
+            </details>
+          </>
+        )}
+      </div>
     </div>
   );
 }
