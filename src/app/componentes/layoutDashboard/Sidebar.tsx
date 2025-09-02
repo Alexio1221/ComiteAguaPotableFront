@@ -1,17 +1,70 @@
 "use client"
 
-import { Home, Users, Wrench, CreditCard, Droplets } from "lucide-react"
+import { useState, useEffect } from "react"
+import {
+  Home,
+  Users,
+  Wrench,
+  CreditCard,
+  Droplet,
+  Book,
+  Bell,
+  Map,
+  AlertCircle,
+  Calendar,
+} from "lucide-react"
 import NavLinks from "./NavLinks"
+import ruta from "@/api/axios"
 
-const links = [
-  { href: "/dashboard", label: "Inicio", icon: Home },
-  { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
-  { href: "/dashboard/tecnico", label: "Técnico", icon: Wrench },
-  { href: "/dashboard/pagos", label: "Pagos", icon: CreditCard },
-  { href: "/dashboard/consumo", label: "Consumo", icon: Droplets },
-]
+const iconMap = {
+  Home,
+  Users,
+  Wrench,
+  CreditCard,
+  Droplet,
+  Map,
+  Book,
+  Bell,
+  AlertCircle,
+  Calendar,
+} as const
 
-export default function Sidebar() {
+// Definimos las props que recibe Sidebar
+interface SidebarProps {
+  rol: string
+}
+
+interface Funcion {
+  nombreFuncion: string
+  icono: keyof typeof iconMap
+}
+
+export default function Sidebar({ rol }: SidebarProps) {
+  const [funciones, setFunciones] = useState<Funcion[]>([])
+
+  useEffect(() => {
+    const fetchFunciones = async () => {
+      try {
+        const response = await ruta.get(`/auth/funciones/${rol}`)
+        setFunciones(response.data.funciones)
+      } catch (error) {
+        console.error("Error al obtener funciones:", error)
+        setFunciones([]) // limpiamos si falla
+      }
+    }
+
+    fetchFunciones()
+  }, [rol])
+
+  const links = [
+    { href: "/dashboard", label: "Inicio", icon: Home },
+    ...funciones.map((func) => ({
+      href: `/dashboard/${rol}/${func.nombreFuncion.toLowerCase()}`,
+      label: func.nombreFuncion,
+      icon: iconMap[func.icono] || Home,
+    })),
+  ]
+
   return (
     <aside className="w-64 bg-white shadow-md p-4 flex flex-col">
       <h2 className="text-xl font-bold mb-6">💧 Sistema Agua</h2>

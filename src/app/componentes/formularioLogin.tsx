@@ -12,13 +12,30 @@ export function FormularioLogin() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  type LoginResponse = {
+    mensaje: string;
+    usuario: {
+      idUsuario: number;
+      usuario: string;
+      nombre: string;
+      apellido: string;
+      roles: {
+        nombreRol: string;
+        funciones: {
+          nombreFuncion: string;
+          icono: string;
+        }[];
+      }[];
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const response = await ruta.post(
+      const response = await ruta.post<LoginResponse>(
         "/auth/login",
         { usuario, contraseña }
       );
