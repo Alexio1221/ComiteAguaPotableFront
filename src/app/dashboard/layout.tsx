@@ -11,7 +11,6 @@ export default function DashboardLayout({
 }) {
   const [rol, setRol] = useState("Operador");
 
-
   return (
     <div className="h-screen w-full flex bg-gray-50 text-gray-900">
       {/* Sidebar */}

@@ -59,7 +59,7 @@ export default function Sidebar({ rol }: SidebarProps) {
   const links = [
     { href: "/dashboard", label: "Inicio", icon: Home },
     ...funciones.map((func) => ({
-      href: `/dashboard/${rol}/${func.nombreFuncion.toLowerCase()}`,
+      href: `/dashboard/${rol.toLowerCase()}/${func.nombreFuncion.toLowerCase()}`,
       label: func.nombreFuncion,
       icon: iconMap[func.icono] || Home,
     })),
