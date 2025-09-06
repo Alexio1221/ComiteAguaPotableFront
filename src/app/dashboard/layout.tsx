@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [rol, setRol] = useState("Operador");
+  const [rol, setRol] = useState("Socio");
 
   return (
     <div className="h-screen w-full flex bg-gray-50 text-gray-900">
