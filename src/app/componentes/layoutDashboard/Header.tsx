@@ -1,8 +1,11 @@
 "use client"
 
 import UserMenu from "./UserMenu"
-import { useState, useEffect } from 'react'
-import ruta from '@/api/axios'
+import { useState, useEffect } from "react"
+import ruta from "@/api/axios"
+import { ChevronDown } from "lucide-react"
+import { motion } from "framer-motion"
+import Dropdown from "@/app/componentes/componenteDropdown"
 
 interface HeaderProps {
   rol: string
@@ -15,8 +18,7 @@ interface Rol {
 }
 
 export default function Header({ rol, setRol }: HeaderProps) {
-
-  const [roles, setRoles] = useState<Rol[]>([]);
+  const [roles, setRoles] = useState<Rol[]>([])
 
   useEffect(() => {
     const fetchFunciones = async () => {
@@ -25,7 +27,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
         setRoles(response.data.roles)
       } catch (error) {
         console.error("Error al obtener roles:", error)
-        setRoles([{ nombreRol: "Socio", descripcion: "Rol por defecto" }]) // limpiamos si falla
+        setRoles([{ nombreRol: "Socio", descripcion: "Rol por defecto" }])
       }
     }
 
@@ -33,29 +35,47 @@ export default function Header({ rol, setRol }: HeaderProps) {
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRol(e.target.value);
+    setRol(e.target.value)
   }
 
   return (
-    <header className="h-16 shadow bg-white flex items-center justify-between px-6">
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="h-16 shadow-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-between px-6 text-white"
+    >
+      {/* Título */}
+      <h1 className="font-bold text-xl tracking-wide">Dashboard</h1>
+
+      {/* Controles derecha: select de rol + UserMenu */}
       <div className="flex items-center gap-4">
-        <h1 className="font-semibold text-lg">Dashboard</h1>
-
-        {/* Desplegable de roles */}
-        <select
-          value={rol}
-          onChange={handleChange}
-          className="border rounded px-2 py-1"
+        {/* Select de roles */}
+        <motion.div
+          whileHover={{ scale: 1.05, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
+          transition={{ type: "spring", stiffness: 300 }}
         >
-          {roles.map(r => (
-            <option key={r.nombreRol} value={r.nombreRol}>
-              {r.nombreRol}
-            </option>
-          ))}
-        </select>
+          <Dropdown
+            trigger={
+              <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-white text-gray-800 shadow-md hover:shadow-lg transition-shadow duration-200">
+                <span>{rol}</span>
+                <ChevronDown className="w-4 h-4 text-gray-600" />
+              </div>
+            }
+            items={roles.map(r => ({
+              label: r.nombreRol,
+              onClick: () => setRol(r.nombreRol),
+            }))}
+          />
+        </motion.div>
+        {/* UserMenu animado */}
+        <motion.div
+          whileHover={{ scale: 1.05, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <UserMenu />
+        </motion.div>
       </div>
-
-      <UserMenu />
-    </header>
+    </motion.header>
   )
 }
