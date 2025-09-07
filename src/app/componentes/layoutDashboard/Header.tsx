@@ -23,7 +23,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
   useEffect(() => {
     const fetchFunciones = async () => {
       try {
-        const response = await ruta.get(`/auth/roles`)
+        const response = await ruta.get(`/auth/roles-usuario-actual`)
         setRoles(response.data.roles)
       } catch (error) {
         console.error("Error al obtener roles:", error)

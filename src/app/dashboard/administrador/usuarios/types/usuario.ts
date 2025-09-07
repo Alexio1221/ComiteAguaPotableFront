@@ -1,0 +1,35 @@
+export interface Usuario {
+  idUsuario: number
+  usuario: string
+  nombre: string
+  apellido: string
+  telefono?: string
+  fechaRegistro: string
+  activo: boolean
+  roles: Rol[]
+}
+
+export interface Rol {
+  idRol: number
+  nombreRol: string
+  descripcion: string
+  estado: boolean
+}
+
+export interface FiltrosUsuario {
+  busqueda: string
+  rol: string
+  estado: 'todos' | 'activo' | 'inactivo'
+  fechaDesde?: Date
+  fechaHasta?: Date
+}
+
+export interface UsuarioFormData {
+  usuario: string
+  nombre: string
+  apellido: string
+  telefono?: string
+  contraseña?: string
+  rolesIds: number[]
+  estadosRoles: { [idRol: number]: boolean }
+}
