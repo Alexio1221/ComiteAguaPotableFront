@@ -18,11 +18,12 @@ export default function NavLinks({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-2 rounded-lg transition ${
-        active ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
-      }`}
+      className={`flex items-center gap-3 p-2 rounded-lg transition ${active
+          ? "bg-blue-600 text-white"
+          : "hover:bg-blue-700 hover:text-white"
+        }`}
     >
-      <Icon className="w-5 h-5" />
+      <Icon className="w-5 h-5 shrink-0" />
       <span>{children}</span>
     </Link>
   )

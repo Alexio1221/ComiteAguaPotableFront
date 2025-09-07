@@ -43,7 +43,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="h-16 shadow-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-between px-6 text-white"
+      className="h-16 shadow-lg bg-gradient-to-r from-blue-800 to-blue-400 flex items-center justify-between px-6 text-white"
     >
       {/* Título */}
       <h1 className="font-bold text-xl tracking-wide">Dashboard</h1>
@@ -62,7 +62,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
                 <ChevronDown className="w-4 h-4 text-gray-600" />
               </div>
             }
-            items={roles.map(r => ({
+            items={roles.map((r) => ({
               label: r.nombreRol,
               onClick: () => setRol(r.nombreRol),
             }))}
@@ -77,5 +77,6 @@ export default function Header({ rol, setRol }: HeaderProps) {
         </motion.div>
       </div>
     </motion.header>
+
   )
 }
