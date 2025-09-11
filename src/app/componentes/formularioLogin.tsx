@@ -1,8 +1,10 @@
-"use client"; // Para habilitar hooks y estado
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ruta from "../../api/axios"; //Archivo configurado para las peticiones
+import ruta from "../../api/axios";
+import RecuperarPasswordModal from "../modals/verificacionModal";
+import CambiarPasswordModal from "../modals/cambiarPasswordModal"; // tu nuevo modal
 
 export function FormularioLogin() {
   const router = useRouter();
@@ -11,6 +13,9 @@ export function FormularioLogin() {
   const [contraseña, setContraseña] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [modalRecuperar, setModalRecuperar] = useState(false);
+  const [modalCambiarPassword, setModalCambiarPassword] = useState(false);
+  const [usuarioVerificado, setUsuarioVerificado] = useState<string | null>(null);
 
   type LoginResponse = {
     mensaje: string;
@@ -44,15 +49,18 @@ export function FormularioLogin() {
         router.push("/dashboard");
       }
     } catch (err: any) {
-      // Si el backend devuelve error, mostrar mensaje en rojo
-      if (err.response && err.response.data && err.response.data.mensaje) {
-        setError(err.response.data.mensaje);
-      } else {
-        setError("Error de conexión, intenta nuevamente.");
-      }
+      if (err.response?.data?.mensaje) setError(err.response.data.mensaje);
+      else setError("Error de conexión, intenta nuevamente.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Callback que ejecuta el modal de recuperación cuando se verifica el código
+  const handleCodigoVerificado = (usuario: string) => {
+    setModalRecuperar(false);         // cerramos modal de recuperación
+    setUsuarioVerificado(usuario);    // guardamos usuario
+    setModalCambiarPassword(true);    // abrimos modal de cambio de contraseña
   };
 
   return (
@@ -91,10 +99,28 @@ export function FormularioLogin() {
 
       <a
         href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setModalRecuperar(true);
+        }}
         className="text-sm underline text-white hover:text-blue-300"
       >
         ¿Olvidaste tu contraseña?
       </a>
+
+      {/* Modal de recuperación */}
+      <RecuperarPasswordModal
+        isOpen={modalRecuperar}
+        setIsOpen={setModalRecuperar}
+        onVerificado={handleCodigoVerificado} // <-- le pasamos la callback
+      />
+
+      {/* Modal de cambio de contraseña */}
+      <CambiarPasswordModal
+        isOpen={modalCambiarPassword}
+        setIsOpen={setModalCambiarPassword}
+        usuario={usuarioVerificado}
+      />
     </form>
   );
 }
