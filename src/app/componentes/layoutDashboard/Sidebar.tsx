@@ -1,38 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-  Home,
-  Users,
-  Wrench,
-  CreditCard,
-  Droplet,
-  Book,
-  Bell,
-  Map,
-  AlertCircle,
-  Calendar,
-  Menu,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-} from "lucide-react"
+import iconMap, { IconName } from "@/iconos/iconos"
 import NavLinks from "./NavLinks"
 import ruta from "@/api/axios"
 import { motion } from "framer-motion"
-
-const iconMap = {
-  Home,
-  Users,
-  Wrench,
-  CreditCard,
-  Droplet,
-  Map,
-  Book,
-  Bell,
-  AlertCircle,
-  Calendar,
-} as const
 
 interface SidebarProps {
   rol: string
@@ -40,13 +12,15 @@ interface SidebarProps {
 
 interface Funcion {
   nombreFuncion: string
-  icono: keyof typeof iconMap
+  icono: IconName
 }
 
 export default function Sidebar({ rol }: SidebarProps) {
   const [funciones, setFunciones] = useState<Funcion[]>([])
   const [isCollapsed, setIsCollapsed] = useState(true) // estado comprimido
   const [isPinned, setIsPinned] = useState(false) // estado fijado expandido
+  const ChevronIcon = isPinned ? iconMap["ChevronLeft"] : iconMap["ChevronDown"]
+  const DropletIcon = iconMap["Droplet"]
 
   useEffect(() => {
     const fetchFunciones = async () => {
@@ -63,11 +37,11 @@ export default function Sidebar({ rol }: SidebarProps) {
   }, [rol])
 
   const links = [
-    { href: "/dashboard", label: "Inicio", icon: Home },
+    { href: "/dashboard", label: "Inicio", icon: iconMap["Home"] },
     ...funciones.map((func) => ({
       href: `/dashboard/${rol.toLowerCase()}/${func.nombreFuncion.toLowerCase()}`,
       label: func.nombreFuncion,
-      icon: iconMap[func.icono] || Home,
+      icon: iconMap[func.icono] || iconMap["Home"],
     })),
   ]
 
@@ -92,12 +66,12 @@ export default function Sidebar({ rol }: SidebarProps) {
         }}
         className="absolute -right-3 top-6 bg-white text-blue-600 rounded-full shadow-md p-1 hover:bg-gray-200 transition"
       >
-        {isPinned ? <ChevronLeft size={18} /> : <ChevronDown size={18} />}
+        <ChevronIcon size={18} />
       </button>
 
       {/* Logo / título */}
       <div className="p-4 flex items-center gap-2">
-        <Droplet className="w-6 h-6" />
+        <DropletIcon className="w-6 h-6" />
         {!isCollapsed && (
           <h2 className="text-lg font-bold tracking-wide">Sistema Agua</h2>
         )}
