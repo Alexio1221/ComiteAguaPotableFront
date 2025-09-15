@@ -270,33 +270,22 @@ export default function ModalUsuario({
                                         </div>
                                     )}
 
-                                    <div className="flex flex-col gap-2">
-                                        {formData.rolesIds.map((idRol) => {
-                                            // Buscar el rol completo en tu lista de roles
-                                            const rol = roles.find((r) => r.idRol === idRol);
-
-                                            if (!rol) return null;
-
-                                            return (
-                                                <div key={rol.idRol} className="flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        id={`rol-${rol.idRol}`}
-                                                        checked={formData.estadosRoles?.[rol.idRol] ?? false}
-                                                        onChange={(e) =>
-                                                            handleInputChange("estadosRoles", {
-                                                                ...formData.estadosRoles,
-                                                                [rol.idRol]: e.target.checked,
-                                                            })
-                                                        }
-                                                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                                    />
-                                                    <label htmlFor={`rol-${rol.idRol}`} className="ml-2 text-sm text-gray-700">
-                                                        {`Rol activo (${rol.nombreRol})`}
-                                                    </label>
-                                                </div>
-                                            );
-                                        })}
+                                    <div className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id="activo"
+                                            checked={formData.estadosRoles?.[4] ?? false} // 4 id del socio
+                                            onChange={(e) =>
+                                                handleInputChange("estadosRoles", {
+                                                    ...formData.estadosRoles,
+                                                    4: e.target.checked, // actualiza solo el rol Socio
+                                                })
+                                            }
+                                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                        <label htmlFor="activo" className="ml-2 text-sm text-gray-700">
+                                            Usuario activo
+                                        </label>
                                     </div>
 
                                 </motion.div>
@@ -398,7 +387,8 @@ export default function ModalUsuario({
                                         </motion.button>
                                     ) : (
                                         <motion.button
-                                            type="submit"
+                                            type="button"
+                                            onClick={handleSubmit}
                                             disabled={loading}
                                             whileHover={{ scale: loading ? 1 : 1.05 }}
                                             whileTap={{ scale: loading ? 1 : 0.95 }}
