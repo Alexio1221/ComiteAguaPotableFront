@@ -8,6 +8,7 @@ import FiltrosUsuarios from "./components/FiltroUsuarios"
 import ModalUsuario from "./components/ModalUsuario"
 import { Usuario, Rol, FiltrosUsuario, UsuarioFormData } from "./types/usuario"
 import ruta from "@/api/axios";
+import toast from 'react-hot-toast'
 
 export default function UsuariosPage() {
     // Estados
@@ -113,20 +114,28 @@ export default function UsuariosPage() {
                         u.idUsuario === usuarioEditando.idUsuario ? response.data : u
                     )
                 );
-
-                alert("Usuario actualizado correctamente");
+                toast.success('Usuario actualizado correctamente ✅', {
+                    duration: 4000, // 4 segundos
+                    style: {
+                        background: '#24A3E3',
+                        color: '#fff',
+                    },
+                })
+                //alert("Usuario actualizado correctamente");
             } else {
                 const response = await ruta.post("/auth/usuarios", data);
 
                 setUsuarios((prev) => [...prev, response.data]);
-                alert("Usuario creado correctamente");
+                toast.success('Usuario creado correctamente 🎉')
+                //alert("Usuario creado correctamente");
             }
 
             setModalAbierto(false)
             setUsuarioEditando(null)
         } catch (error) {
             console.error('Error al guardar usuario:', error)
-            alert('Error al guardar el usuario')
+            toast.error('Hubo un error al guardar el usuario ❌')
+            //alert('Error al guardar el usuario')
         } finally {
             setLoadingModal(false)
         }

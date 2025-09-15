@@ -94,7 +94,7 @@ export function FormularioLogin() {
       </button>
 
       {error && (
-        <p className="mt-2 text-red-500 text-sm text-center">{error}</p>
+        <p className="mt-2 text-gray-100 text-sm text-center">{error}</p>
       )}
 
       <a

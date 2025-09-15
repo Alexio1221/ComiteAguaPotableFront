@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Mail, Phone, Lock, Shield, Save, Eye, EyeOff } from "lucide-react"
+import { X, User, Phone, Lock, Shield, Save, Eye, EyeOff } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Usuario, Rol, UsuarioFormData } from "../types/usuario"
 
@@ -37,15 +37,16 @@ export default function ModalUsuario({
     const [showPassword, setShowPassword] = useState(false)
     const [step, setStep] = useState(1)
 
-    const isEditing = !!usuario
-    const modalTitle = isEditing ? 'Editar Usuario' : 'Crear Nuevo Usuario'
+    const isEditing = !!usuario  //si usuario es null es falso caso contrario verdadero
+    const modalTitle = isEditing ? 'Editar Usuario' : 'Crear Nuevo Socio'
 
     useEffect(() => {
-        if (usuario && isOpen) {
-            // Construir diccionario de estados de roles
+        if (!isOpen) return; // sólo cuando se abre
+
+        if (usuario) {
             const estados: { [idRol: number]: boolean } = {};
             usuario.roles.forEach((rol) => {
-                estados[rol.idRol] = rol.estado; // 👈 guardamos el estado real de cada rol
+                estados[rol.idRol] = rol.estado;
             });
             setFormData({
                 usuario: usuario.usuario,
@@ -56,12 +57,13 @@ export default function ModalUsuario({
                 rolesIds: usuario.roles.map(r => r.idRol),
                 estadosRoles: estados,
             })
-        } else if (!usuario && isOpen) {
+        } else {
             setFormData(initialFormData)
         }
+
         setErrors({})
         setStep(1)
-    }, [usuario, isOpen])
+    }, [isOpen])
 
     const handleInputChange = (field: keyof UsuarioFormData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }))
