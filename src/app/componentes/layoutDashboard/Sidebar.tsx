@@ -5,6 +5,7 @@ import iconMap, { IconName } from "@/iconos/iconos"
 import NavLinks from "./NavLinks"
 import ruta from "@/api/axios"
 import { motion } from "framer-motion"
+import { useRouter } from 'next/navigation'
 
 interface SidebarProps {
   rol: string
@@ -16,6 +17,8 @@ interface Funcion {
 }
 
 export default function Sidebar({ rol }: SidebarProps) {
+  const router = useRouter();
+
   const [funciones, setFunciones] = useState<Funcion[]>([])
   const [isCollapsed, setIsCollapsed] = useState(true) // estado comprimido
   const [isPinned, setIsPinned] = useState(false) // estado fijado expandido
@@ -27,7 +30,11 @@ export default function Sidebar({ rol }: SidebarProps) {
       try {
         const response = await ruta.get(`/auth/funciones/${rol}`)
         setFunciones(response.data.funciones)
-      } catch (error) {
+      } catch (error: any) {
+        if (error.response?.status === 401 || error.response?.status === 400) {
+          router.push('/');
+          return;
+        }
         console.error("Error al obtener funciones:", error)
         setFunciones([])
       }

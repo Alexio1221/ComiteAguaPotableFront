@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Home,
@@ -35,6 +36,8 @@ interface Funcion {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const [funciones, setFunciones] = useState<Funcion[]>([])
   const [rol, setRol] = useState<string>("Socio");
 
@@ -49,9 +52,14 @@ export default function DashboardPage() {
         // Obtener funciones según rol
         const funcionesRes = await ruta.get(`/auth/funciones/${rolActual}`);
         setFunciones(funcionesRes.data.funciones);
-      } catch (error) {
-        console.error("Error al obtener rol o funciones:", error);
-        setFunciones([]);
+      } catch (error: any) {
+        if (error.response?.status === 401 || error.response?.status === 400) {
+          // No loggear el error 401, es comportamiento esperado
+          router.push('/');
+          return;
+        }
+        // Solo loggear otros errores
+        console.error("Error al obtener rol y funciones:", error);
       }
     }
 

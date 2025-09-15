@@ -26,8 +26,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
         const response = await ruta.get(`/auth/roles-usuario-actual`)
         setRoles(response.data.roles)
       } catch (error) {
-        console.error("Error al obtener roles:", error)
-        setRoles([{ nombreRol: "Socio", descripcion: "Rol por defecto" }])
+        return;
       }
     }
 
