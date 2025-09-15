@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, User, Phone, Lock, Shield, Save, Eye, EyeOff } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Usuario, Rol, UsuarioFormData } from "../types/usuario"
+import { toast } from "react-hot-toast"
 
 interface ModalUsuarioProps {
     isOpen: boolean
@@ -20,7 +21,7 @@ const initialFormData: UsuarioFormData = {
     apellido: '',
     telefono: '',
     contraseña: '',
-    rolesIds: [],
+    rolesIds: [4], // Socio por defecto
     estadosRoles: {}
 }
 
@@ -91,6 +92,7 @@ export default function ModalUsuario({
             newErrors.contraseña = 'La contraseña es requerida'
         }
         if (formData.rolesIds.length === 0) {
+            toast.error('Debe seleccionar al menos un rol')
             newErrors.rolesIds = [] as any // Para indicar error en roles
         }
 
@@ -102,6 +104,8 @@ export default function ModalUsuario({
         e.preventDefault()
         if (validateForm()) {
             onSave(formData)
+        }else{
+            toast.error('Verifica los datos ingresados antes de enviar')
         }
     }
 
@@ -338,9 +342,10 @@ export default function ModalUsuario({
                                                 </div>
                                             </motion.div>
                                         ))}
+                                        
                                         {errors.rolesIds && (
                                             <p className="text-sm text-red-600">Debe seleccionar al menos un rol</p>
-                                        )}
+                                        )}*
                                     </div>
                                 </motion.div>
                             )}

@@ -107,7 +107,7 @@ export default function UsuariosPage() {
             await new Promise(resolve => setTimeout(resolve, 1000)) // Simular request
 
             if (usuarioEditando) {
-                const response = await ruta.put(`/auth/usuarios/${usuarioEditando.idUsuario}`, data);
+                const response = await ruta.put(`/auth/usuario/${usuarioEditando.idUsuario}`, data);
 
                 setUsuarios((prev) =>
                     prev.map((u) =>
@@ -123,7 +123,7 @@ export default function UsuariosPage() {
                 })
                 //alert("Usuario actualizado correctamente");
             } else {
-                const response = await ruta.post("/auth/usuarios", data);
+                const response = await ruta.post("/auth/usuario", data);
 
                 setUsuarios((prev) => [...prev, response.data]);
                 toast.success('Usuario creado correctamente 🎉')
@@ -132,10 +132,20 @@ export default function UsuariosPage() {
 
             setModalAbierto(false)
             setUsuarioEditando(null)
-        } catch (error) {
-            console.error('Error al guardar usuario:', error)
-            toast.error('Hubo un error al guardar el usuario ❌')
-            //alert('Error al guardar el usuario')
+        } catch (err: any) {
+            // si es un error de axios, tendrá err.response
+            const mensajeBackend =
+                err.response?.data?.mensaje || // campo "mensaje"
+                err.response?.data?.error ||   // el campo "error"
+                err.message;                   // el mensaje genérico de JS
+
+            toast.error(mensajeBackend, {
+                duration: 4000,
+                style: {
+                    background: '#e02424',
+                    color: '#fff'
+                }
+            });
         } finally {
             setLoadingModal(false)
         }
