@@ -121,17 +121,20 @@ export default function TablaUsuarios({
                   {/* Roles */}
                   <div className="col-span-2">
                     <div className="flex flex-wrap gap-1">
-                      {usuario.roles.slice(0, 2).map((rol) => (
-                        <span
-                          key={rol.idRol}
-                          className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
-                        >
-                          {rol.nombreRol}
-                        </span>
-                      ))}
-                      {usuario.roles.length > 2 && (
+                      {usuario.roles
+                        .filter((rol) => rol.estado)
+                        .slice(0, 2)
+                        .map((rol) => (
+                          <span
+                            key={rol.idRol}
+                            className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                          >
+                            {rol.nombreRol}
+                          </span>
+                        ))}
+                      {usuario.roles.filter((rol) => rol.estado).length > 2 && (
                         <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                          +{usuario.roles.length - 2}
+                          +{usuario.roles.filter((rol) => rol.estado).length - 2}
                         </span>
                       )}
                     </div>

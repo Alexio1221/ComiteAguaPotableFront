@@ -313,17 +313,22 @@ export default function ModalUsuario({
                                             <motion.div
                                                 key={rol.idRol}
                                                 whileHover={{ scale: 1.02 }}
-                                                className={`border rounded-lg p-4 cursor-pointer transition-all ${formData.rolesIds.includes(rol.idRol)
+                                                className={`border rounded-lg p-4 cursor-pointer transition-all ${formData.estadosRoles?.[rol.idRol]
                                                     ? 'border-blue-500 bg-blue-50'
                                                     : 'border-gray-200 hover:border-gray-300'
                                                     }`}
-                                                onClick={() => handleRoleToggle(rol.idRol)}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <input
                                                         type="checkbox"
-                                                        checked={formData.rolesIds.includes(rol.idRol)}
-                                                        onChange={() => handleRoleToggle(rol.idRol)}
+                                                        checked={rol.idRol === 4 ? true : formData.estadosRoles?.[rol.idRol] ?? false}  //checked={formData.estadosRoles?.[rol.idRol] ?? false}
+                                                        onChange={(e) => {
+                                                            if (rol.idRol !== 4) handleRoleToggle(rol.idRol);
+                                                            handleInputChange("estadosRoles", {
+                                                                ...formData.estadosRoles,
+                                                                [rol.idRol]: e.target.checked,
+                                                            })
+                                                        }}
                                                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                                     />
                                                     <div>
