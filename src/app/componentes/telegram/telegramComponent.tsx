@@ -14,12 +14,13 @@ export default function VincularTelegram({ usuarioPredeterminado = "" }: Vincula
 
   useEffect(() => {
     setUsuario(usuarioPredeterminado);
-  }, [usuarioPredeterminado]); 
+  }, [usuarioPredeterminado]);
 
   const [link, setLink] = useState("");
   const [cargando, setCargando] = useState(false);
 
   const generarLink = async () => {
+    // Si el input esta vacio
     if (!usuario.trim()) {
       toast.error("Ingresa un nombre de usuario válido");
       return;
@@ -31,9 +32,15 @@ export default function VincularTelegram({ usuarioPredeterminado = "" }: Vincula
         usuario,
       });
       setLink(res.data.link);
-    } catch (error) {
+    } catch (error: any) {
       setLink("");
-      toast.error("Error al generar el link de Telegram");
+      setLink("");
+
+      toast.error(
+        error.response?.data?.mensaje ||
+        error.response?.data?.error ||
+        "Error al generar link fron"
+      );
     } finally {
       setCargando(false);
     }
