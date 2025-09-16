@@ -6,6 +6,7 @@ import NavLinks from "./NavLinks"
 import ruta from "@/api/axios"
 import { motion } from "framer-motion"
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast';
 
 interface SidebarProps {
   rol: string
@@ -35,8 +36,7 @@ export default function Sidebar({ rol }: SidebarProps) {
           router.push('/');
           return;
         }
-        console.error("Error al obtener funciones:", error)
-        setFunciones([])
+        //setFunciones([])
       }
     }
 

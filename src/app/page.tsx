@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import { NavLinks } from './componentes/navEncavezado';
+import { NavLinks } from './componentes/login/navEncavezado';
 import LoginModal from './modals/loginModal';
 
 export default function HomePage() {

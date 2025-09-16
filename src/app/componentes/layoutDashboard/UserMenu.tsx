@@ -1,4 +1,4 @@
-import Dropdown from "@/app/componentes/componenteDropdown"
+import Dropdown from "@/app/componentes/layoutDashboard/componenteDropdown"
 import { Menu } from "lucide-react"
 
 export default function UserMenu() {

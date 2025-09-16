@@ -3,7 +3,7 @@
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { XMarkIcon, ExclamationTriangleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { FormularioLogin } from "../componentes/formularioLogin";
+import { FormularioLogin } from "../componentes/login/formularioLogin";
 
 export default function LoginModal() {
   const [isOpen, setIsOpen] = useState(false);

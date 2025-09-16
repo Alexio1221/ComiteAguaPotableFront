@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { motion } from "framer-motion"
-import { UserPlus, Download, Upload, RefreshCw } from "lucide-react"
+import { UserPlus, Download, Upload, RefreshCw, Send } from "lucide-react"
 import TablaUsuarios from "./components/TablaUsuarios"
 import FiltrosUsuarios from "./components/FiltroUsuarios"
 import ModalUsuario from "./components/ModalUsuario"
 import { Usuario, Rol, FiltrosUsuario, UsuarioFormData } from "./types/usuario"
 import ruta from "@/api/axios";
 import toast from 'react-hot-toast'
+import GlobalModal from "@/app/modals/globalModal";
+import VincularTelegram from "@/app/componentes/telegram/telegramComponent";
 
 export default function UsuariosPage() {
     // Estados
@@ -23,6 +25,8 @@ export default function UsuariosPage() {
     const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null)
     const [loading, setLoading] = useState(true)
     const [loadingModal, setLoadingModal] = useState(false)
+    const [modalTelegramAbierto, setModalTelegramAbierto] = useState(false);
+    const [usuarioParaTelegram, setUsuarioParaTelegram] = useState<string>("");
 
     useEffect(() => {
         const fetchUsuarios = async () => {
@@ -121,6 +125,7 @@ export default function UsuariosPage() {
                         color: '#fff',
                     },
                 })
+
                 //alert("Usuario actualizado correctamente");
             } else {
                 const response = await ruta.post("/auth/usuario", data);
@@ -128,6 +133,8 @@ export default function UsuariosPage() {
                 setUsuarios((prev) => [...prev, response.data]);
                 toast.success('Usuario creado correctamente 🎉')
                 //alert("Usuario creado correctamente");
+                setUsuarioParaTelegram(response.data.usuario);
+                setModalTelegramAbierto(true)
             }
 
             setModalAbierto(false)
@@ -200,16 +207,6 @@ export default function UsuariosPage() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleImportarUsuarios}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                    >
-                        <Upload className="w-4 h-4" />
-                        Importar
-                    </motion.button>
-
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                         onClick={handleExportarUsuarios}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
                     >
@@ -225,6 +222,18 @@ export default function UsuariosPage() {
                     >
                         <UserPlus className="w-4 h-4" />
                         Nuevo Usuario
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            setModalTelegramAbierto(true);
+                            setUsuarioParaTelegram("");
+                        }}
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition-colors"
+                    >
+                        <Send className="w-4 h-4" />
+                        Vincular Cuenta
                     </motion.button>
                 </div>
             </motion.div>
@@ -276,6 +285,15 @@ export default function UsuariosPage() {
                 onSave={handleGuardarUsuario}
                 loading={loadingModal}
             />
+
+            {/* Modal de Telegram */}
+            <GlobalModal
+                isOpen={modalTelegramAbierto}
+                onClose={() => setModalTelegramAbierto(false)}
+                titulo="Vincular Telegram"
+            >
+                <VincularTelegram usuarioPredeterminado={usuarioParaTelegram || ""} />
+            </GlobalModal>
         </div>
     )
 }

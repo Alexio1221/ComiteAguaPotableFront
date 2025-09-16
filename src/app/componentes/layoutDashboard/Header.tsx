@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import ruta from "@/api/axios"
 import { ChevronDown } from "lucide-react"
 import { motion } from "framer-motion"
-import Dropdown from "@/app/componentes/componenteDropdown"
+import Dropdown from "@/app/componentes/layoutDashboard/componenteDropdown"
 
 interface HeaderProps {
   rol: string

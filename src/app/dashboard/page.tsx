@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from 'react-hot-toast';
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Home,
@@ -57,9 +58,20 @@ export default function DashboardPage() {
           // No loggear el error 401, es comportamiento esperado
           router.push('/');
           return;
+        }else{
+          //console.error("Error al obtener funciones:", error)
+          toast.error("Error de sesion", {
+            duration: 4000,
+            style: {
+              background: '#e02424',
+              color: '#fff'
+            }
+          })
+          router.push('/');
+          return;
         }
         // Solo loggear otros errores
-        console.error("Error al obtener rol y funciones:", error);
+        //console.error("Error al obtener rol y funciones:", error);
       }
     }
 

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ruta from "../../api/axios";
-import RecuperarPasswordModal from "../modals/verificacionModal";
-import CambiarPasswordModal from "../modals/cambiarPasswordModal"; // tu nuevo modal
+import ruta from "../../../api/axios";
+import RecuperarPasswordModal from "../../modals/verificacionModal";
+import CambiarPasswordModal from "../../modals/cambiarPasswordModal"; // tu nuevo modal
 
 export function FormularioLogin() {
   const router = useRouter();
