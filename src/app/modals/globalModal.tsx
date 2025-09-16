@@ -1,8 +1,9 @@
 // GlobalModal.tsx
 'use client'
 
-import { Fragment, ReactNode } from "react";
+import { Fragment } from "react";
 import { Dialog, Transition, DialogTitle, TransitionChild } from "@headlessui/react";
+import { AnimacionAgua } from "@/animaciones/Animaciones";
 
 interface ModalProps {
     isOpen: boolean;
@@ -45,25 +46,33 @@ export default function GlobalModal({ isOpen, onClose, titulo, children }: Modal
                     >
                         <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle 
                             bg-white rounded-2xl shadow-2xl transform transition-all border-t-4 border-blue-500">
-                            {titulo && (
-                                <DialogTitle as="h3" className="text-lg font-semibold text-blue-700 mb-4 text-center">
-                                    {titulo}
-                                </DialogTitle>
-                            )}
+                            {/* Contenido del modal */}
+                            <div className="relative z-10">
+                                {titulo && (
+                                    <DialogTitle as="h3" className="text-lg font-semibold text-blue-700 mb-4 text-center">
+                                        {titulo}
+                                    </DialogTitle>
+                                )}
 
-                            <div className="mb-4">
-                                {children}
+                                <div className="mb-4">
+                                    {children}
+                                </div>
+
+                                <div className="mt-4 text-right">
+                                    <button
+                                        onClick={onClose}
+                                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
                             </div>
-
-                            <div className="mt-4 text-right">
-                                <button
-                                    onClick={onClose}
-                                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors"
-                                >
-                                    Cerrar
-                                </button>
+                            {/* Animación de fondo */}
+                            <div className="absolute inset-0 z-0">
+                                <AnimacionAgua className="w-full h-full object-cover opacity-30" />
                             </div>
                         </div>
+                        
                     </TransitionChild>
                 </div>
             </Dialog>
