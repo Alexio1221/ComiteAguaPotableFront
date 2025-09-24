@@ -1,7 +1,23 @@
 import Dropdown from "@/app/componentes/layoutDashboard/componenteDropdown"
 import { Menu } from "lucide-react"
+import ruta from "@/api/axios"
+import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 
 export default function UserMenu() {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      await ruta.post("/sesion/cerrar-sesion")
+      router.push("/")
+      toast.success("Sesión cerrada correctamente")
+    } catch (error: any) {
+      //console.error(error)
+      toast.error("No se pudo cerrar sesión")
+    }
+  }
+
   return (
     <Dropdown
       trigger={
@@ -13,7 +29,7 @@ export default function UserMenu() {
       items={[
         { label: "Perfil", onClick: () => console.log("Perfil") },
         { label: "Configuración", onClick: () => console.log("Configuración") },
-        { label: "Cerrar sesión", onClick: () => console.log("Cerrar sesión") },
+        { label: "Cerrar sesión", onClick: handleLogout },
       ]}
     />
   )

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ruta from "../../../api/axios";
 import RecuperarPasswordModal from "../../modals/verificacionModal";
 import CambiarPasswordModal from "../../modals/cambiarPasswordModal"; // tu nuevo modal
+import { toast } from "react-hot-toast"
 
 export function FormularioLogin() {
   const router = useRouter();
@@ -41,12 +42,13 @@ export function FormularioLogin() {
 
     try {
       const response = await ruta.post<LoginResponse>(
-        "/auth/login",
+        "/sesion/login",
         { usuario, contraseña }
       );
 
       if (response.status === 200) {
         router.push("/dashboard");
+        toast.success("Bienvenido " + response.data.usuario.nombre);
       }
     } catch (err: any) {
       if (err.response?.data?.mensaje) setError(err.response.data.mensaje);
