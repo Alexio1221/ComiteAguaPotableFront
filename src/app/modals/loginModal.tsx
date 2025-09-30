@@ -47,7 +47,7 @@ export default function LoginModal() {
                 {/* Imagen de fondo */}
                 <div
                   className="relative bg-cover bg-center px-5 py-10"
-                  style={{ backgroundImage: `url('/imagenes/loginImagen.webp')` }} // Asegúrate de poner esta imagen en /public
+                  style={{ backgroundImage: `url('/imagenes/loginImagen.webp')` }}
                 >
                   {/* Fondo oscurecido */}
                   <div className="absolute inset-0 bg-black bg-opacity-20" />

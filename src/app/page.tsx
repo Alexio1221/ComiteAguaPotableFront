@@ -1,108 +1,87 @@
 'use client'
-import { useState } from 'react';
-import { NavLinks } from './componentes/login/navEncavezado';
-import LoginModal from './modals/loginModal';
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { NavLinks } from './componentes/login/navEncavezado'
+import LoginModal from './modals/loginModal'
+import Bienvenido from './componentes/homePage/home'
+import { Droplets } from 'lucide-react'
 
 export default function HomePage() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
-      {/* Header */}
-      <header className="bg-blue-700 text-white shadow-md fixed top-0 w-full z-50">
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-4 py-3 h-16">
-          <h1 className="text-xl font-bold">Comité de Agua Potable</h1>
+    <div className="min-h-screen flex flex-col" id="inicio">
+      {/* Header estilo ancho completo */}
+      <header className="fixed top-0 w-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 shadow-xl z-50 rounded-b-xl">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4 md:py-5 gap-4">
 
-          {/* Botón menú móvil */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <Droplets className="w-6 h-6 text-blue-600" />
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold text-white drop-shadow-md">Comité de Agua Potable</h1>
+          </div>
+
+          {/* Menú Desktop */}
+          <nav className="hidden md:flex items-center gap-6">
+            <NavLinks mode="desktop" />
+          </nav>
+
+          {/* Menú Mobile */}
           <button
-            className="md:hidden"
+            className="md:hidden p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-all"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14" />
+            <svg className="w-6 h-6 text-white" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          {/* Menú desktop */}
-          <NavLinks mode="desktop" />
-
           {/* Login */}
-          <LoginModal/>
+          <LoginModal />
         </div>
 
-        {/* Menú móvil */}
         {menuOpen && (
-          <NavLinks mode="mobile" />
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-blue-700 to-cyan-600 text-white shadow-inner p-4 md:hidden"
+          >
+            <NavLinks mode="mobile" />
+          </motion.div>
         )}
       </header>
 
-      {/* Main */}
-      <main className="flex-grow bg-gray-50">
-        {/* Inicio */}
-        <section id="inicio" className="text-center py-16 bg-blue-100">
-          <h2 className="text-3xl font-bold mb-4">Bienvenido</h2>
-          <p className="text-lg max-w-xl mx-auto">
-            Sistema de gestión del Comité de Agua Potable Catachilla Alta. Aquí encontrarás información y servicios útiles para nuestra comunidad.
-          </p>
+      <main className="flex-grow pt-[90px]">
+        <section className="w-full bg-gradient-to-tr from-indigo-800 via-sky-600 to-cyan-400 text-white rounded-tl-[200px] rounded-br-[200px] sm:rounded-tl-[400px] sm:rounded-br-[400px] flex items-center justify-center">
+          <Bienvenido />
         </section>
 
-        {/* Nosotros */}
-        <section id="nosotros" className="py-16 px-4 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Nosotros</h2>
-          <p className="mb-4">
+
+        {/* Otras secciones */}
+        <section id="nosotros" className="py-20 max-w-5xl mx-auto px-6">
+          <h2 className="text-3xl font-bold mb-6 text-blue-800">Nosotros</h2>
+          <p className="mb-6">
             Somos una organización vecinal que administra el agua potable de manera justa y transparente.
           </p>
-          <h3 className="font-semibold mb-2">Representantes del Comité:</h3>
-          <ul className="list-disc list-inside space-y-1">
+          <ul className="list-disc list-inside space-y-2">
             <li>Presidente: Don Nicolás Quispe</li>
             <li>Secretaria: Juana Flores</li>
             <li>Tesorero: Martín Lema</li>
           </ul>
         </section>
-
-        {/* Ubicación */}
-        <section id="ubicacion" className="py-16 px-4 bg-white max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Ubicación</h2>
-          <p className="mb-4">
-            Comunidad Catachilla Alta, Zona Rural del Municipio X, Departamento de Y.
-          </p>
-          {/* Puedes insertar un iframe de Google Maps aquí si quieres */}
-        </section>
-
-        {/* Misión y Visión */}
-        <section id="mision-vision" className="py-16 px-4 bg-blue-50 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6">Misión y Visión</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold">Misión</h3>
-              <p>Garantizar el acceso sostenible, justo y continuo al agua potable para todos los miembros de la comunidad.</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Visión</h3>
-              <p>Ser un modelo de gestión comunitaria transparente y eficiente en servicios básicos.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Noticias */}
-        <section id="noticias" className="py-16 px-4 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Noticias</h2>
-          <ul className="space-y-3">
-            <li>📅 Corte de agua programado para el 10 de agosto.</li>
-            <li>🛠️ Mantenimiento del tanque principal – 5 de septiembre.</li>
-            <li>📣 Asamblea general – 15 de septiembre a las 18:00.</li>
-          </ul>
-        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-blue-700 text-white text-center py-6">
-        <p>© {new Date().getFullYear()} Comité de Agua Potable Catachilla Alta</p>
-        <p className="text-sm">Sistema desarrollado por Alex GC</p>
+      {/* Footer moderno */}
+      <footer className="bg-blue-900 text-white text-center py-10 mt-12">
+        <p className="text-lg font-semibold">
+          © {new Date().getFullYear()} Comité de Agua Potable Catachilla Alta
+        </p>
+        <p className="text-sm opacity-80 mt-1">
+          Sistema desarrollado por Alex GC
+        </p>
       </footer>
-
-      {/*Funciones*/}
-      
     </div>
-  );
+  )
 }
