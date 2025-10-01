@@ -1,7 +1,7 @@
 export function NavLinks({ mode = "mobile" }) {
   const baseLinks = (
     <>
-      <a href="#inicio" className={`${mode === "desktop" ? "relative group" : "block"} py-2 hover:text-blue-100 transition-colors font-medium`}>
+      <a href="#" className={`${mode === "desktop" ? "relative group" : "block"} py-2 hover:text-blue-100 transition-colors font-medium`}>
         Inicio
         {mode === "desktop" && <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all group-hover:w-full"></span>}
       </a>
@@ -17,7 +17,7 @@ export function NavLinks({ mode = "mobile" }) {
         Misión y Visión
         {mode === "desktop" && <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all group-hover:w-full"></span>}
       </a>
-      <a href="#noticias" className={`${mode === "desktop" ? "relative group" : "block"} py-2 hover:text-blue-100 transition-colors font-medium`}>
+      <a href="#noticias-avisos" className={`${mode === "desktop" ? "relative group" : "block"} py-2 hover:text-blue-100 transition-colors font-medium`}>
         Noticias y Avisos
         {mode === "desktop" && <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all group-hover:w-full"></span>}
       </a>
