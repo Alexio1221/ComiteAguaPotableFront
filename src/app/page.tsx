@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { NavLinks } from './componentes/login/navEncavezado'
 import LoginModal from './modals/loginModal'
 import Bienvenido from './componentes/homePage/home'
+import Nosotros from './componentes/homePage/nosotros'
+import Ubicacion from './componentes/homePage/ubicacion'
 import { Droplets } from 'lucide-react'
 
 export default function HomePage() {
@@ -58,18 +60,12 @@ export default function HomePage() {
           <Bienvenido />
         </section>
 
+        <section id="nosotros" className="py-5 mx-auto">
+          <Nosotros />
+        </section>
 
-        {/* Otras secciones */}
-        <section id="nosotros" className="py-20 max-w-5xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-6 text-blue-800">Nosotros</h2>
-          <p className="mb-6">
-            Somos una organización vecinal que administra el agua potable de manera justa y transparente.
-          </p>
-          <ul className="list-disc list-inside space-y-2">
-            <li>Presidente: Don Nicolás Quispe</li>
-            <li>Secretaria: Juana Flores</li>
-            <li>Tesorero: Martín Lema</li>
-          </ul>
+        <section id="ubicacion" className="mx-auto">
+          <Ubicacion />
         </section>
       </main>
 
