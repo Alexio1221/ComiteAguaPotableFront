@@ -24,6 +24,7 @@ import {
   MapPin,
   Archive,
   CheckSquare,
+  Gauge,
 } from "lucide-react"
 
 const iconMap = {
@@ -53,6 +54,7 @@ const iconMap = {
   MapPin,
   Archive,
   CheckSquare,
+  Gauge,
 } as const
 
 export type IconName = keyof typeof iconMap

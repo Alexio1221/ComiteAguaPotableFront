@@ -53,7 +53,7 @@ export default function UsuariosPage() {
                 const busqueda = filtros.busqueda.toLowerCase()
                 const coincide =
                     usuario.nombre.toLowerCase().includes(busqueda) ||
-                    usuario.apellido.toLowerCase().includes(busqueda) ||
+                    usuario.apellidos.toLowerCase().includes(busqueda) ||
                     usuario.usuario.toLowerCase().includes(busqueda)
                 if (!coincide) return false
             }
@@ -102,7 +102,7 @@ export default function UsuariosPage() {
     const handleVerDetalles = (usuario: Usuario) => {
         // Implementar modal de detalles o navegación
         console.log('Ver detalles de:', usuario)
-        alert(`Detalles de ${usuario.nombre} ${usuario.apellido}`)
+        alert(`Detalles de ${usuario.nombre} ${usuario.apellidos}`)
     }
 
     const handleGuardarUsuario = async (data: UsuarioFormData) => {

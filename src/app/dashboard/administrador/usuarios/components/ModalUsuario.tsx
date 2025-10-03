@@ -18,7 +18,7 @@ interface ModalUsuarioProps {
 const initialFormData: UsuarioFormData = {
     usuario: '',
     nombre: '',
-    apellido: '',
+    apellidos: '',
     telefono: '',
     contraseña: '',
     rolesIds: [4], // Socio por defecto
@@ -52,7 +52,7 @@ export default function ModalUsuario({
             setFormData({
                 usuario: usuario.usuario,
                 nombre: usuario.nombre,
-                apellido: usuario.apellido,
+                apellidos: usuario.apellidos,
                 telefono: usuario.telefono || '',
                 contraseña: '',
                 rolesIds: usuario.roles.map(r => r.idRol),
@@ -87,7 +87,7 @@ export default function ModalUsuario({
 
         if (!formData.usuario.trim()) newErrors.usuario = 'El usuario es requerido'
         if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
-        if (!formData.apellido.trim()) newErrors.apellido = 'El apellido es requerido'
+        if (!formData.apellidos.trim()) newErrors.apellidos = 'El apellido es requerido'
         if (!isEditing && !formData.contraseña) {
             newErrors.contraseña = 'La contraseña es requerida'
         }
@@ -205,13 +205,13 @@ export default function ModalUsuario({
                                             </label>
                                             <input
                                                 type="text"
-                                                value={formData.apellido}
-                                                onChange={(e) => handleInputChange('apellido', e.target.value)}
-                                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.apellido ? 'border-red-300' : 'border-gray-300'
+                                                value={formData.apellidos}
+                                                onChange={(e) => handleInputChange('apellidos', e.target.value)}
+                                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.apellidos ? 'border-red-300' : 'border-gray-300'
                                                     }`}
                                                 placeholder="Ingresa el apellido"
                                             />
-                                            {errors.apellido && <p className="mt-1 text-sm text-red-600">{errors.apellido}</p>}
+                                            {errors.apellidos && <p className="mt-1 text-sm text-red-600">{errors.apellidos}</p>}
                                         </div>
                                     </div>
 

@@ -2,7 +2,7 @@ export interface Usuario {
   idUsuario: number
   usuario: string
   nombre: string
-  apellido: string
+  apellidos: string
   telefono?: string
   fechaRegistro: string
   activo: boolean
@@ -27,7 +27,7 @@ export interface FiltrosUsuario {
 export interface UsuarioFormData {
   usuario: string
   nombre: string
-  apellido: string
+  apellidos: string
   telefono?: string
   contraseña?: string
   rolesIds: number[]

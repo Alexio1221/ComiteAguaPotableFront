@@ -95,11 +95,11 @@ export default function TablaUsuarios({
                   <div className="col-span-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        {usuario.nombre.charAt(0)}{usuario.apellido.charAt(0)}
+                        {usuario.nombre.charAt(0)}{usuario.apellidos.charAt(0)}
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {usuario.nombre} {usuario.apellido}
+                          {usuario.nombre} {usuario.apellidos}
                         </p>
                         <p className="text-sm text-gray-500">@{usuario.usuario}</p>
                       </div>
