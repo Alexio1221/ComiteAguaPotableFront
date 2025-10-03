@@ -2,14 +2,18 @@
 
 import Sidebar from "@/app/componentes/layoutDashboard/Sidebar"
 import Header from "@/app/componentes/layoutDashboard/Header"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [rol, setRol] = useState("Socio");
+  const [rol, setRol] = useState("");
+
+  useEffect(() => {
+    setRol(rol);
+  }, [rol]);
 
   return (
     <div className="h-screen w-full flex bg-gray-50 text-gray-900">

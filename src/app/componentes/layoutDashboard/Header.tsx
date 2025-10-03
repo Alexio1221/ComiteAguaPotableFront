@@ -6,6 +6,7 @@ import ruta from "@/api/axios"
 import { ChevronDown } from "lucide-react"
 import { motion } from "framer-motion"
 import Dropdown from "@/app/componentes/layoutDashboard/componenteDropdown"
+import { useRouter } from "next/navigation"
 
 interface HeaderProps {
   rol: string
@@ -18,6 +19,7 @@ interface Rol {
 }
 
 export default function Header({ rol, setRol }: HeaderProps) {
+  const router = useRouter();
   const [roles, setRoles] = useState<Rol[]>([])
 
   useEffect(() => {
@@ -25,6 +27,7 @@ export default function Header({ rol, setRol }: HeaderProps) {
       try {
         const response = await ruta.get(`/auth/roles-usuario-actual`)
         setRoles(response.data.roles)
+        setRol(response.data.roles[0].nombreRol)
       } catch (error) {
         return;
       }
@@ -32,10 +35,6 @@ export default function Header({ rol, setRol }: HeaderProps) {
 
     fetchFunciones()
   }, [])
-
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRol(e.target.value)
-  }
 
   return (
     <motion.header
@@ -63,7 +62,10 @@ export default function Header({ rol, setRol }: HeaderProps) {
             }
             items={roles.map((r) => ({
               label: r.nombreRol,
-              onClick: () => setRol(r.nombreRol),
+              onClick: () => {
+                setRol(r.nombreRol);
+                router.push("/dashboard");
+              }
             }))}
           />
         </motion.div>
