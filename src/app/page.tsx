@@ -58,7 +58,16 @@ export default function HomePage() {
       </header>
 
       <main className="flex-grow pt-[90px]">
-        <section className="w-full bg-gradient-to-tr from-indigo-800 via-sky-600 to-cyan-400 text-white rounded-tl-[200px] rounded-br-[200px] sm:rounded-tl-[400px] sm:rounded-br-[400px] flex items-center justify-center">
+        <section className="
+  w-full 
+  bg-gradient-to-tr from-indigo-800 via-sky-600 to-cyan-400 
+  text-white 
+  rounded-tl-[200px] rounded-br-[200px] 
+  md:rounded-tl-[300px] md:rounded-br-[300px] 
+  lg:rounded-tl-[400px] lg:rounded-br-[400px] 
+  flex items-center justify-center 
+  px-20
+">
           <Bienvenido />
         </section>
 

@@ -11,14 +11,18 @@ export default function Bienvenido() {
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="md:w-1/2 space-y-6 text-center md:text-left flex flex-col items-center md:items-start"
+        className="md:w-1/2 space-y-6 text-center flex flex-col items-center"
       >
         <h2 className="text-4xl font-bold">Bienvenidos</h2>
-        <p className="text-lg leading-relaxed opacity-90">
-          El Comité de Agua Potable “Catachilla Alta” pone a disposición de sus usuarios esta plataforma informativa para comunicar de forma transparente todo lo relacionado con la gestión del recurso hídrico. Con base en nuestro Estatuto Orgánico, trabajamos por el desarrollo integral de la comunidad, asegurando un servicio eficiente, sostenible y justo para todos.
+        <p className="text-lg leading-relaxed opacity-90 max-w-prose">
+          El Comité de Agua Potable “Catachilla Alta” pone a disposición de sus usuarios esta
+          plataforma informativa para comunicar de forma transparente todo lo relacionado con la
+          gestión del recurso hídrico. Con base en nuestro Estatuto Orgánico, trabajamos por el
+          desarrollo integral de la comunidad, asegurando un servicio eficiente, sostenible y justo
+          para todos.
         </p>
 
-        {/* Animación gota más moderada */}
+        {/* Animación gota */}
         <div className="mt-6">
           <AnimacionGotaDeAgua className="w-100 h-100 object-contain" />
         </div>
