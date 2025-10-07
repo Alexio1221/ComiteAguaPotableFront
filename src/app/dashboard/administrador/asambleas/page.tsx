@@ -16,14 +16,6 @@ interface Reunion {
   documentoAsamblea?: string
 }
 
-interface Aviso {
-  idNoticiaAviso: number
-  titulo: string
-  descripcion: string
-  fechaVigencia: string
-  imagen?: string
-}
-
 const tipos = [
   'Reunión de Directorio',
   'Asamblea General',
@@ -100,7 +92,6 @@ const ReunionesAdmin: React.FC = () => {
       ])
 
       const reunionCreada: Reunion = resReunion.data
-      const avisoCreado: Aviso = resAviso.data
 
       // Actualizar listado
       setReuniones([reunionCreada, ...reuniones])
