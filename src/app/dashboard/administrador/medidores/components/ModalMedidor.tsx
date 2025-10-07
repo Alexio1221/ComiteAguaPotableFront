@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast"
 import Select from 'react-select';
 import dynamic from "next/dynamic";
 
-const MapaDelimitado = dynamic(() => import("../../mapa/MapaDelimitado"), { ssr: false });
+const UbicacionSelector = dynamic(() => import("@/app/componentes/mapa/SeleccionarUbicacionMapa"), { ssr: false });
 
 interface ModalMedidorProps {
     isOpen: boolean
@@ -16,7 +16,7 @@ interface ModalMedidorProps {
     medidor?: Medidor | null
     onSave: (data: MedidorFormData) => void
     loading: boolean
-    socios: { idUsuario: number; nombre: string; apellido: string }[]
+    socios: { idUsuario: number; nombre: string; apellidos: string }[]
     categorias: { idCategoria: number; nombre: string }[]
 }
 
@@ -29,7 +29,9 @@ const initialFormData: MedidorFormData = {
         longitud: 0,
         descripcion: ''
     },
-    estado: 'ACTIVO'
+    estado: 'ACTIVO',
+    usuarioRequerido: '',
+    categoriaRequerida: ''
 }
 
 export default function ModalUsuario({
@@ -42,10 +44,10 @@ export default function ModalUsuario({
     categorias
 }: ModalMedidorProps) {
     const [formData, setFormData] = useState<MedidorFormData>(initialFormData)
-    const [errors, setErrors] = useState<Partial<MedidorFormData>>({})
+    
     const [step, setStep] = useState(1)
     const [showMap, setShowMap] = useState(false);
-
+    const [errors, setErrors] = useState<Partial<MedidorFormData>>({})
     const isEditing = !!medidor  //si usuario es null es falso caso contrario verdadero
     const modalTitle = isEditing ? 'Editar Medidor' : 'Crear Nuevo Medidor'
 
@@ -67,7 +69,7 @@ export default function ModalUsuario({
                 idCategoria: medidor.idCategoria ?? 0,
                 direccion: medidor.direccion,
                 ubicacion: medidor.ubicacion || { latitud: 0, longitud: 0, descripcion: '' },
-                estado: medidor.estado
+                estado: medidor.estado,
             })
         } else {
             setFormData(initialFormData)
@@ -86,8 +88,8 @@ export default function ModalUsuario({
 
     const validateForm = () => {
         const newErrors: Partial<MedidorFormData> = {}
-        if (formData.idUsuario <= 0) newErrors.idUsuario = 'El usuario es requerido';
-        if (formData.idCategoria <= 0) newErrors.idCategoria = 'La categoría es requerida';
+        if (formData.idUsuario <= 0) newErrors.usuarioRequerido = 'El usuario es requerido';
+        if (formData.idCategoria <= 0) newErrors.categoriaRequerida = 'La categoría es requerida';
         if (!formData.direccion.trim()) newErrors.direccion = 'La dirección es requerida'
 
         setErrors(newErrors)
@@ -186,14 +188,14 @@ export default function ModalUsuario({
                                             <Select
                                                 options={socios.map(s => ({
                                                     value: s.idUsuario,
-                                                    label: `${s.idUsuario} - ${s.nombre} ${s.apellido}`
+                                                    label: `${s.idUsuario} - ${s.nombre} ${s.apellidos}`
                                                 }))}
                                                 value={
                                                     formData.idUsuario
                                                         ? {
                                                             value: formData.idUsuario,
                                                             label: `${formData.idUsuario} - ${socios.find(s => s.idUsuario === formData.idUsuario)?.nombre || ''
-                                                                } ${socios.find(s => s.idUsuario === formData.idUsuario)?.apellido || ''}`
+                                                                } ${socios.find(s => s.idUsuario === formData.idUsuario)?.apellidos || ''}`
                                                         }
                                                         : null
                                                 }
@@ -201,7 +203,7 @@ export default function ModalUsuario({
                                                 isClearable
                                                 placeholder="Selecciona un socio"
                                             />
-                                            {errors.idUsuario && <p className="mt-1 text-sm text-red-600">{errors.idUsuario}</p>}
+                                            {errors.usuarioRequerido && <p className="mt-1 text-sm text-red-600">{errors.usuarioRequerido}</p>}
                                         </div>
 
                                         <div>
@@ -220,7 +222,7 @@ export default function ModalUsuario({
                                                     </option>
                                                 ))}
                                             </select>
-                                            {errors.idCategoria && <p className="mt-1 text-sm text-red-600">{errors.idCategoria}</p>}
+                                            {errors.categoriaRequerida && <p className="mt-1 text-sm text-red-600">{errors.categoriaRequerida}</p>}
                                         </div>
                                     </div>
 
@@ -291,7 +293,8 @@ export default function ModalUsuario({
                                     {/* Contenedor del mapa */}
                                     {showMap && (
                                         <div className="border rounded-lg overflow-auto h-80">
-                                            <MapaDelimitado
+                                            <UbicacionSelector
+                                                referencia={{ lat: -17.405066347785226, lng: -65.98441004854527, nombre: 'Oficina Principal' }}
                                                 onSelect={(lat: number, lng: number) =>
                                                     setFormData({
                                                         ...formData,

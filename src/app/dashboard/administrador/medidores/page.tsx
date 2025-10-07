@@ -26,49 +26,29 @@ export default function MedidoresPage() {
 
 
     useEffect(() => {
-        // Datos de medidores (mock)
-        const dummyMedidores: Medidor[] = [
-            {
-                idMedidor: 1,
-                nombre: 'Juan',
-                apellido: 'Pérez',
-                categoria: 'Residencial',
-                estado: 'ACTIVO',
-                direccion: 'Av. Siempre Viva 123',
-                fechaRegistro: '2023-01-01'
-            },
-            {
-                idMedidor: 2,
-                nombre: 'Ana',
-                apellido: 'Gómez',
-                categoria: 'Comercial',
-                estado: 'INACTIVO',
-                direccion: 'Calle Falsa 456',
-                fechaRegistro: '2023-02-01'
-            },
-        ];
-        setMedidores(dummyMedidores);
+        const fetchData = async () => {
+            try {
+                // Ejecutar las 3 llamadas al backend en paralelo
+                const [medidoresRes, sociosRes, categoriasRes] = await Promise.all([
+                    ruta.get('/mapa/medidores'), 
+                    ruta.get('/auth/usuarios'),     
+                    ruta.get('/auth/categorias'),   
+                ])
 
-        // Datos de socios (mock)
-        const dummySocios = [
-            { idUsuario: 1, nombre: 'Luis', apellido: 'Martínez' },
-            { idUsuario: 2, nombre: 'María', apellido: 'Rodríguez' },
-            { idUsuario: 3, nombre: 'Carlos', apellido: 'González' },
-        ];
-        setSocios(dummySocios);
+                // Guardar en estado
+                setMedidores(medidoresRes.data)
+                setSocios(sociosRes.data.usuarios); 
+                setCategorias(categoriasRes.data)
 
-        // Datos de categorías (mock)
-        const dummyCategorias = [
-            { idCategoria: 1, nombre: 'Residencial' },
-            { idCategoria: 2, nombre: 'Comercial' },
-            { idCategoria: 3, nombre: 'Industrial' },
-        ];
-        setCategorias(dummyCategorias);
+            } catch (error) {
+                console.error('Error al cargar los datos:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
 
-        setLoading(false);
-    }, []);
-
-
+        fetchData()
+    }, [])
 
     // Filtrar medidores según los filtros aplicados
     const medidoresFiltrados = useMemo(() => {
@@ -87,11 +67,6 @@ export default function MedidoresPage() {
             if (filtros.estado !== 'todos' && medidor.estado !== filtros.estado.toUpperCase()) {
                 return false;
             }
-
-            // Filtro por fecha (si se implementa)
-            // if (filtros.fechaDesde || filtros.fechaHasta) {
-            //   // Implementar lógica de filtro por fecha
-            // }
 
             return true
         })
@@ -130,7 +105,7 @@ export default function MedidoresPage() {
             await new Promise(resolve => setTimeout(resolve, 1000)) // Simular request
 
             if (medidorEditando) {
-                const response = await ruta.put(`/auth/usuario/${medidorEditando.idMedidor}`, data);
+                const response = await ruta.put(`/mapa/medidor/${medidorEditando.idMedidor}`, data);
 
                 setMedidores((prev) =>
                     prev.map((u) =>
@@ -147,11 +122,11 @@ export default function MedidoresPage() {
 
                 //alert("Usuario actualizado correctamente");
             } else {
-                const response = await ruta.post("/auth/usuario", data);
-
+                const response = await ruta.post("/mapa/medidores", data);
+                console.log(response.data)
                 setMedidores((prev) => [...prev, response.data]);
-                toast.success('Medidor creado correctamente 🎉')
-                //alert("Usuario creado correctamente");
+                toast.success('Medidor creado correctamente ')
+
             }
 
             setModalAbierto(false)
@@ -279,7 +254,7 @@ export default function MedidoresPage() {
                     setMedidorEditando(null)
                 }}
                 medidor={medidorEditando}
-                socios={socios}           // <-- lista de socios
+                socios={socios}           
                 categorias={categorias}
                 onSave={handleGuardarMedidor}
                 loading={loadingModal}

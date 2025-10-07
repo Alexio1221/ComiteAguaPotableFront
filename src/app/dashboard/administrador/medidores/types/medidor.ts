@@ -32,4 +32,6 @@ export interface MedidorFormData {
     descripcion?: string
   }
   estado: 'ACTIVO' | 'INACTIVO' | 'SUSPENDIDO'
+  usuarioRequerido?: string
+  categoriaRequerida?: string
 }

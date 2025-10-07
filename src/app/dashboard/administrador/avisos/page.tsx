@@ -22,7 +22,7 @@ const AvisosAdmin: React.FC = () => {
   const [avisos, setAvisos] = useState<Aviso[]>([])
   const [errorFecha, setErrorFecha] = useState<string | null>(null)
 
-  // 📦 Obtener avisos al cargar el componente
+  //  Obtener avisos al cargar el componente
   useEffect(() => {
     const fetchAvisos = async () => {
       try {
@@ -36,7 +36,7 @@ const AvisosAdmin: React.FC = () => {
     fetchAvisos()
   }, [])
 
-  // 📌 Crear nuevo aviso
+  //  Crear nuevo aviso
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!titulo || !descripcion || !fechaVigencia) {
