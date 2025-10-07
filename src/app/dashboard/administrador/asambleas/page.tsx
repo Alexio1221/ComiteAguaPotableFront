@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
-import { FileText, PlusCircle } from 'lucide-react'
-import ruta from '@/api/axios' // ← tu instancia personalizada de Axios
+import React, { useState, useEffect } from 'react'
+import { PlusCircle } from 'lucide-react'
+import ruta from '@/api/axios'
+import toast from 'react-hot-toast'
 
 interface Reunion {
+  idReunion: number
   tipo: string
   fecha: string
   hora: string
@@ -15,9 +17,10 @@ interface Reunion {
 }
 
 interface Aviso {
+  idNoticiaAviso: number
   titulo: string
   descripcion: string
-  fecha: string
+  fechaVigencia: string
   imagen?: string
 }
 
@@ -30,6 +33,7 @@ const tipos = [
 ]
 
 const ReunionesAdmin: React.FC = () => {
+  // Estados de formulario
   const [tipo, setTipo] = useState(tipos[0])
   const [otroTipo, setOtroTipo] = useState('')
   const [fecha, setFecha] = useState('')
@@ -39,39 +43,73 @@ const ReunionesAdmin: React.FC = () => {
   const [descripcion, setDescripcion] = useState('')
   const [documento, setDocumento] = useState<File | null>(null)
   const [imagenAviso, setImagenAviso] = useState<File | null>(null)
-  const [imagenPreview, setImagenPreview] = useState<string | null>(null)
 
+  // Reuniones vigentes
   const [reuniones, setReuniones] = useState<Reunion[]>([])
-  const [avisos, setAvisos] = useState<Aviso[]>([])
 
+  // 🗂 Obtener reuniones vigentes
+  useEffect(() => {
+    const fetchReuniones = async () => {
+      try {
+        const res = await ruta.get('/avisos/reunion')
+        setReuniones(res.data)
+      } catch (error: any) {
+        console.error('Error al obtener reuniones:', error)
+        toast.error('No se pudieron cargar las reuniones.')
+      }
+    }
+    fetchReuniones()
+  }, [])
+
+  // 📌 Crear reunión + aviso
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!fecha || !hora || !lugar || !motivo || !descripcion) return
+    if (!fecha || !hora || !lugar || !motivo || !descripcion) {
+      toast.error('Por favor completa todos los campos obligatorios.')
+      return
+    }
 
     const tipoFinal = tipo === 'Otro' ? otroTipo : tipo
 
     try {
-      const formData = new FormData()
-      formData.append('tipo', tipoFinal)
-      formData.append('fecha', fecha)
-      formData.append('hora', hora)
-      formData.append('lugar', lugar)
-      formData.append('motivo', motivo)
-      formData.append('descripcion', descripcion)
-      if (documento) formData.append('documentoAsamblea', documento)
-      if (imagenAviso) formData.append('imagenAviso', imagenAviso)
+      // FormData reunión
+      const formDataReuniones = new FormData()
+      formDataReuniones.append('tipo', tipoFinal)
+      formDataReuniones.append('fecha', fecha)
+      formDataReuniones.append('hora', hora)
+      formDataReuniones.append('lugar', lugar)
+      formDataReuniones.append('motivo', motivo)
+      formDataReuniones.append('descripcion', descripcion)
+      if (documento) formDataReuniones.append('documentoAsamblea', documento)
 
-      // Enviar datos al backend
-      const response = await ruta.post('/reuniones', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      // FormData aviso
+      const formDataAvisos = new FormData()
+      formDataAvisos.append('titulo', motivo)
+      formDataAvisos.append('descripcion', descripcion)
+      formDataAvisos.append('fechaVigencia', fecha)
+      if (imagenAviso) formDataAvisos.append('imagen', imagenAviso)
 
-      // El backend debe devolver la reunión creada + aviso
-      const { reunionCreada, avisoCreado } = response.data
+      // Enviar ambas solicitudes en paralelo
+      const [resReunion, resAviso] = await Promise.all([
+        ruta.post('/avisos/reunion', formDataReuniones, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+        ruta.post('/avisos', formDataAvisos, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+      ])
 
-      // Actualizar estados
+      const reunionCreada: Reunion = resReunion.data
+      const avisoCreado: Aviso = resAviso.data
+
+      // Actualizar listado
       setReuniones([reunionCreada, ...reuniones])
-      if (avisoCreado) setAvisos([avisoCreado, ...avisos])
+
+      // Mostrar mensaje de backend si lo envía
+      if (resReunion.data.message) toast.success(resReunion.data.message)
+      if (resAviso.data.message) toast.success(resAviso.data.message)
+
+      toast.success('Reunión y aviso creados correctamente.')
 
       // Reset formulario
       setTipo(tipos[0])
@@ -83,16 +121,34 @@ const ReunionesAdmin: React.FC = () => {
       setDescripcion('')
       setDocumento(null)
       setImagenAviso(null)
-      setImagenPreview(null)
-    } catch (error) {
-      console.error('Error al crear la reunión:', error)
-      alert('Ocurrió un error al crear la reunión.')
+    } catch (error: any) {
+      console.error('Error al crear reunión o aviso:', error)
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message)
+      } else {
+        toast.error('Ocurrió un error al crear la reunión o aviso.')
+      }
+    }
+  }
+
+  // 🗑 Eliminar reunión
+  const handleDeleteReunion = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar esta reunión?')) return
+
+    try {
+      const res = await ruta.delete(`/avisos/reunion/${id}`)
+      setReuniones(reuniones.filter(r => r.idReunion !== id))
+      toast.success(res.data?.message || 'Reunión eliminada correctamente.')
+    } catch (error: any) {
+      console.error('Error al eliminar reunión:', error)
+      toast.error('No se pudo eliminar la reunión.')
     }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
+
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white">
           <div className="flex items-center gap-3">
@@ -117,9 +173,7 @@ const ReunionesAdmin: React.FC = () => {
                 onChange={(e) => setTipo(e.target.value)}
                 className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
-                {tipos.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                {tipos.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
 
@@ -143,6 +197,7 @@ const ReunionesAdmin: React.FC = () => {
                   type="date"
                   value={fecha}
                   onChange={(e) => setFecha(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
                   className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
@@ -193,35 +248,12 @@ const ReunionesAdmin: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Documento de Asamblea (opcional)
               </label>
-              <input type="file" onChange={(e) => setDocumento(e.target.files ? e.target.files[0] : null)} className="mt-1 w-full" />
+              <input type="file" onChange={(e) => setDocumento(e.target.files?.[0] || null)} className="mt-1 w-full" />
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700">Imagen (opcional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    // Si se selecciona un archivo, lo guarda; si se cancela, limpia el estado
-                    const file = e.target.files?.[0] || null
-                    setImagenAviso(file)
-                  }}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              {/* Preview de la imagen seleccionada */}
-              {imagenAviso && (
-                <div className="flex-shrink-0">
-                  <p className="text-sm text-gray-600 mb-1 text-center">Vista previa</p>
-                  <img
-                    src={URL.createObjectURL(imagenAviso)}
-                    alt="Imagen seleccionada"
-                    className="w-80 h-80 object-cover rounded-lg border shadow-sm"
-                  />
-                </div>
-              )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Imagen de aviso (opcional)</label>
+              <input type="file" accept="image/*" onChange={(e) => setImagenAviso(e.target.files?.[0] || null)} className="mt-1 w-full" />
             </div>
 
             <button
@@ -231,6 +263,37 @@ const ReunionesAdmin: React.FC = () => {
               Crear Reunión
             </button>
           </form>
+        </div>
+
+        {/* Lista de reuniones vigentes */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h3 className="text-lg font-bold mb-4 text-blue-700">Reuniones Vigentes</h3>
+          {reuniones.length === 0 ? (
+            <p className="text-gray-500">No hay reuniones vigentes.</p>
+          ) : (
+            <div className="space-y-3">
+              {reuniones.map(r => (
+                <div
+                  key={r.idReunion}
+                  className="bg-gray-50 border rounded-xl p-4 hover:bg-gray-100 transition flex gap-4 items-start"
+                >
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-800">{r.tipo}</p>
+                    <p className="text-sm text-gray-600">{r.motivo}</p>
+                    <p className="text-xs text-gray-500">Fecha: {new Date(r.fecha).toLocaleDateString('es-BO')}</p>
+                    <p className="text-xs text-gray-500">Hora: {r.hora}</p>
+                    <p className="text-xs text-gray-500">Lugar: {r.lugar}</p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteReunion(r.idReunion)}
+                    className="text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
