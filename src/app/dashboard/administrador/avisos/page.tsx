@@ -162,6 +162,7 @@ const AvisosAdmin: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">Imagen (opcional)</label>
               <input
                 type="file"
+                accept="image/*"
                 onChange={(e) => setImagen(e.target.files ? e.target.files[0] : null)}
                 className="mt-1 w-full"
               />
