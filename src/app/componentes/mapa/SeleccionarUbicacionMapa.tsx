@@ -111,7 +111,6 @@ const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({ lat, lng, onSelec
             <p className="font-semibold">Medidor #{m.idMedidor}</p>
             <p>Socio: {m.nombreSocio}</p>
             <p>Dirección: {m.direccion}</p>
-            <p>Lat: {m.latitud.toFixed(5)} <br /> Lng: {m.longitud.toFixed(5)}</p>
           </Popup>
         </Marker>
       )}

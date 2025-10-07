@@ -4,6 +4,7 @@ export interface Usuario {
   nombre: string
   apellidos: string
   telefono?: string
+  ci: string
   fechaRegistro: string
   activo: boolean
   roles: Rol[]
@@ -29,7 +30,8 @@ export interface UsuarioFormData {
   nombre: string
   apellidos: string
   telefono?: string
-  contraseña?: string
+  contraseña: string
+  ci: string
   rolesIds: number[]
   estadosRoles: { [idRol: number]: boolean }
 }

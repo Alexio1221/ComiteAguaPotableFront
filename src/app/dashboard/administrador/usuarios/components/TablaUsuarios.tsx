@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Edit2, Eye, Shield, Phone } from "lucide-react"
+import { Edit2, Eye, Shield, Phone, IdCard } from "lucide-react"
 import { Usuario } from "../types/usuario"
 
 interface TablaUsuariosProps {
@@ -56,9 +56,10 @@ export default function TablaUsuarios({
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b">
           <div className="grid grid-cols-12 gap-4 text-sm font-semibold text-gray-700">
             <div className="col-span-3">Usuario</div>
-            <div className="col-span-3">Teléfono</div>
+            <div className="col-span-2">Teléfono</div>
+            <div className="col-span-2">Cédula de Identidad</div>
             <div className="col-span-2">Roles</div>
-            <div className="col-span-2">Estado</div>
+            <div className="col-span-1">Estado</div>
             <div className="col-span-2">Acciones</div>
           </div>
         </div>
@@ -107,12 +108,24 @@ export default function TablaUsuarios({
                   </div>
 
                   {/* Información de Contacto */}
-                  <div className="col-span-3">
+                  <div className="col-span-2">
                     <div className="space-y-1">
                       {usuario.telefono && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Phone className="w-4 h-4" />
                           <span>{usuario.telefono}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Ci */}
+                  <div className="col-span-2">
+                    <div className="space-y-1">
+                      {usuario.ci && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <IdCard className="w-4 h-4" />
+                          <span>{usuario.ci}</span>
                         </div>
                       )}
                     </div>
@@ -141,7 +154,7 @@ export default function TablaUsuarios({
                   </div>
 
                   {/* Estado */}
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     {/** Buscamos el rol Socio */}
                     {(() => {
                       const rolSocio = usuario.roles.find((r) => r.idRol === 4);

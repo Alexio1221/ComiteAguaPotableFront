@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Phone, Lock, Shield, Save, Eye, EyeOff } from "lucide-react"
+import { X, User, Phone, Lock, Shield, Save, Eye, EyeOff, IdCard } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Usuario, Rol, UsuarioFormData } from "../types/usuario"
 import { toast } from "react-hot-toast"
@@ -21,6 +21,7 @@ const initialFormData: UsuarioFormData = {
     apellidos: '',
     telefono: '',
     contraseña: '',
+    ci: '',
     rolesIds: [4], // Socio por defecto
     estadosRoles: {}
 }
@@ -55,6 +56,7 @@ export default function ModalUsuario({
                 apellidos: usuario.apellidos,
                 telefono: usuario.telefono || '',
                 contraseña: '',
+                ci: usuario.ci || '',
                 rolesIds: usuario.roles.map(r => r.idRol),
                 estadosRoles: estados,
             })
@@ -88,6 +90,8 @@ export default function ModalUsuario({
         if (!formData.usuario.trim()) newErrors.usuario = 'El usuario es requerido'
         if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
         if (!formData.apellidos.trim()) newErrors.apellidos = 'El apellido es requerido'
+        if (!formData.ci.trim()) newErrors.ci = 'El CI es requerido'
+
         if (!isEditing && !formData.contraseña) {
             newErrors.contraseña = 'La contraseña es requerida'
         }
@@ -104,7 +108,7 @@ export default function ModalUsuario({
         e.preventDefault()
         if (validateForm()) {
             onSave(formData)
-        }else{
+        } else {
             toast.error('Verifica los datos ingresados antes de enviar')
         }
     }
@@ -215,7 +219,24 @@ export default function ModalUsuario({
                                         </div>
                                     </div>
 
+                                    {/* Campo de CI */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                <IdCard className="inline w-4 h-4 mr-1" />
+                                                Cédula de Identidad (CI) *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.ci || ''}
+                                                onChange={(e) => handleInputChange('ci', e.target.value)}
+                                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.ci ? 'border-red-300' : 'border-gray-300'
+                                                    }`}
+                                                placeholder="Ej. 12345678"
+                                            />
+                                            {errors.ci && <p className="mt-1 text-sm text-red-600">{errors.ci}</p>}
+                                        </div>
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 <User className="inline w-4 h-4 mr-1" />
@@ -231,7 +252,9 @@ export default function ModalUsuario({
                                             />
                                             {errors.usuario && <p className="mt-1 text-sm text-red-600">{errors.usuario}</p>}
                                         </div>
+                                    </div>
 
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 <Phone className="inline w-4 h-4 mr-1" />
@@ -245,22 +268,21 @@ export default function ModalUsuario({
                                                 placeholder="+591 12345678"
                                             />
                                         </div>
-                                    </div>
 
-                                    {!isEditing && (
+                                        {/* Campo de contraseña — también visible al editar */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 <Lock className="inline w-4 h-4 mr-1" />
-                                                Contraseña *
+                                                Contraseña {isEditing && <span className="text-gray-500 text-sm">(opcional)</span>}
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type={showPassword ? "text" : "password"}
-                                                    value={formData.contraseña}
+                                                    value={formData.contraseña || ''}
                                                     onChange={(e) => handleInputChange('contraseña', e.target.value)}
                                                     className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${errors.contraseña ? 'border-red-300' : 'border-gray-300'
                                                         }`}
-                                                    placeholder="Ingresa una contraseña segura"
+                                                    placeholder={isEditing ? "Deja en blanco para mantener la actual" : "Ingresa una contraseña segura"}
                                                 />
                                                 <button
                                                     type="button"
@@ -272,17 +294,17 @@ export default function ModalUsuario({
                                             </div>
                                             {errors.contraseña && <p className="mt-1 text-sm text-red-600">{errors.contraseña}</p>}
                                         </div>
-                                    )}
+                                    </div>
 
                                     <div className="flex items-center">
                                         <input
                                             type="checkbox"
                                             id="activo"
-                                            checked={formData.estadosRoles?.[4] ?? false} // 4 id del socio
+                                            checked={formData.estadosRoles?.[4] ?? false}
                                             onChange={(e) =>
                                                 handleInputChange("estadosRoles", {
                                                     ...formData.estadosRoles,
-                                                    4: e.target.checked, // actualiza solo el rol Socio
+                                                    4: e.target.checked,
                                                 })
                                             }
                                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -291,7 +313,6 @@ export default function ModalUsuario({
                                             Usuario activo
                                         </label>
                                     </div>
-
                                 </motion.div>
                             )}
 
@@ -342,7 +363,7 @@ export default function ModalUsuario({
                                                 </div>
                                             </motion.div>
                                         ))}
-                                        
+
                                         {errors.rolesIds && (
                                             <p className="text-sm text-red-600">Debe seleccionar al menos un rol</p>
                                         )}*
