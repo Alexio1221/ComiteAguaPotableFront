@@ -10,7 +10,6 @@ type Noticia = {
   idNoticiaAviso: number
   titulo: string
   descripcion: string
-  fechaVigencia: string
   fechaPublicacion: string
   imagen?: string
 }
@@ -21,21 +20,20 @@ const NoticiasAvisosCarrusel: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
 
-  // 🔹 Obtener avisos/noticias desde la API
+  // Obtener avisos/noticias desde la API
   useEffect(() => {
     const fetchNoticias = async () => {
       try {
-        const res = await ruta.get('/avisos') // endpoint de tu backend
+        const res = await ruta.get('/avisos')
         setNoticias(res.data)
       } catch (error) {
-        console.error('Error al obtener noticias:', error)
         toast.error('No se pudieron cargar las noticias o avisos.')
       }
     }
     fetchNoticias()
   }, [])
 
-  // 🔹 Cambiar slide automáticamente
+  // Cambiar slide automáticamente
   useEffect(() => {
     if (isPaused || noticias.length === 0) return
 
@@ -60,7 +58,7 @@ const NoticiasAvisosCarrusel: React.FC = () => {
     setShowImageModal(true)
   }
 
-  // 🔹 Formatear fecha en español
+  // Formatear fecha en español
   const formatearFecha = (fecha: string) => {
     return new Date(fecha).toLocaleDateString('es-BO', {
       weekday: 'long',
@@ -125,7 +123,7 @@ const NoticiasAvisosCarrusel: React.FC = () => {
                     {noticias[currentIndex].titulo}
                   </h4>
                   <p className="text-sm text-gray-400 mb-4">
-                    Vigente hasta: {formatearFecha(noticias[currentIndex].fechaVigencia)}
+                    Fecha de publicación: {formatearFecha(noticias[currentIndex].fechaPublicacion)}
                   </p>
                   <p className="text-gray-600">{noticias[currentIndex].descripcion}</p>
                 </div>
