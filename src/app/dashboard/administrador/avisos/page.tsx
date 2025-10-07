@@ -1,60 +1,104 @@
 'use client'
 
-import React, { useState } from 'react'
-import { File, PlusCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { PlusCircle, AlertCircle, ClipboardClock, CalendarDays } from 'lucide-react'
+import ruta from '@/api/axios'
+import toast from 'react-hot-toast'
 
 interface Aviso {
-  id: number
+  idNoticiaAviso: number
   titulo: string
   descripcion: string
-  fecha: string
+  fechaVigencia: string
+  fechaPublicacion: string
   imagen?: string
 }
-
-// Datos de ejemplo
-const avisosIniciales: Aviso[] = [
-  {
-    id: 1,
-    titulo: 'Nueva apertura de oficina',
-    descripcion: 'Se ha abierto una nueva oficina en el centro de la ciudad. Visítanos y conoce nuestros servicios.',
-    fecha: '25/09/2025',
-    imagen: '/imagenes/loginImagen.webp',
-  },
-  {
-    id: 2,
-    titulo: 'Evento de networking',
-    descripcion: 'Este sábado realizaremos un evento de networking para empresarios locales. ¡No te lo puedes perder!',
-    fecha: '22/09/2025',
-    imagen: '/imagenes/sofia.jpg',
-  },
-]
 
 const AvisosAdmin: React.FC = () => {
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
-  const [fecha, setFecha] = useState('')
+  const [fechaVigencia, setFechaVigencia] = useState('')
   const [imagen, setImagen] = useState<File | null>(null)
-  const [avisos, setAvisos] = useState<Aviso[]>(avisosIniciales)
+  const [avisos, setAvisos] = useState<Aviso[]>([])
+  const [errorFecha, setErrorFecha] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 📦 Obtener avisos al cargar el componente
+  useEffect(() => {
+    const fetchAvisos = async () => {
+      try {
+        const res = await ruta.get('/avisos')
+        setAvisos(res.data)
+      } catch (error) {
+        console.error('Error al obtener avisos:', error)
+        toast.error('No se pudieron cargar los avisos.')
+      }
+    }
+    fetchAvisos()
+  }, [])
+
+  // 📌 Crear nuevo aviso
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!titulo || !descripcion || !fecha) return
-
-    const nuevoAviso: Aviso = {
-      id: avisos.length + 1,
-      titulo,
-      descripcion,
-      fecha,
-      imagen: imagen ? URL.createObjectURL(imagen) : '',
+    if (!titulo || !descripcion || !fechaVigencia) {
+      toast.error('Por favor, completa todos los campos.')
+      return
     }
 
-    setAvisos([nuevoAviso, ...avisos])
+    const hoy = new Date().toISOString().split('T')[0]
+    if (fechaVigencia <= hoy) {
+      setErrorFecha('La fecha de vigencia debe ser posterior al día actual.')
+      return
+    }
+    setErrorFecha(null)
 
-    // Reset
-    setTitulo('')
-    setDescripcion('')
-    setFecha('')
-    setImagen(null)
+    try {
+      const formData = new FormData()
+      formData.append('titulo', titulo)
+      formData.append('descripcion', descripcion)
+      formData.append('fechaVigencia', fechaVigencia)
+      if (imagen) formData.append('imagen', imagen)
+
+      const response = await ruta.post('/avisos', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
+      const nuevoAviso: Aviso = response.data
+      setAvisos([nuevoAviso, ...avisos])
+      toast.success('Aviso creado correctamente.')
+
+      // Reset
+      setTitulo('')
+      setDescripcion('')
+      setFechaVigencia('')
+      setImagen(null)
+    } catch (error) {
+      console.error('Error al crear el aviso:', error)
+      toast.error('Ocurrió un error al crear el aviso.')
+    }
+  }
+
+  // 🗑 Eliminar aviso
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar este aviso?')) return
+
+    try {
+      await ruta.delete(`/avisos/${id}`)
+      setAvisos(avisos.filter((a) => a.idNoticiaAviso !== id))
+      toast.success('Aviso eliminado correctamente.')
+    } catch (error) {
+      console.error('Error al eliminar el aviso:', error)
+      toast.error('No se pudo eliminar el aviso.')
+    }
+  }
+
+  // Formateador de fechas en español
+  const formatearFecha = (fecha: string) => {
+    return new Date(fecha).toLocaleDateString('es-BO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
   }
 
   return (
@@ -74,7 +118,7 @@ const AvisosAdmin: React.FC = () => {
           </div>
         </div>
 
-        {/* Formulario de nuevo aviso */}
+        {/* Formulario */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h3 className="text-lg font-bold mb-4 text-blue-700">Nuevo Aviso / Noticia</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -99,13 +143,20 @@ const AvisosAdmin: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Fecha</label>
+              <label className="block text-sm font-medium text-gray-700">Fecha de vigencia</label>
               <input
                 type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={fechaVigencia}
+                onChange={(e) => setFechaVigencia(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className={`mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${errorFecha ? 'border-red-500 focus:ring-red-400' : 'focus:ring-blue-400'
+                  }`}
               />
+              {errorFecha && (
+                <p className="flex items-center gap-1 text-sm text-red-600 mt-1">
+                  <AlertCircle className="w-4 h-4" /> {errorFecha}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Imagen (opcional)</label>
@@ -124,27 +175,50 @@ const AvisosAdmin: React.FC = () => {
           </form>
         </div>
 
-        {/* Lista de avisos */}
+        {/* Lista */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold mb-4 text-blue-700">Avisos / Noticias Registrados</h3>
+          <h3 className="text-lg font-bold mb-4 text-blue-700">Avisos / Noticias Vigentes</h3>
           {avisos.length === 0 ? (
             <p className="text-gray-500">No hay avisos disponibles.</p>
           ) : (
             <div className="space-y-3">
               {avisos.map((a) => (
-                <div key={a.id} className="bg-gray-50 border rounded-xl p-4 hover:bg-gray-100 transition flex gap-4">
-                  {a.imagen && <img src={a.imagen} alt={a.titulo} className="w-24 h-24 object-cover rounded-lg" />}
-                  <div>
+                <div
+                  key={a.idNoticiaAviso}
+                  className="bg-gray-50 border rounded-xl p-4 hover:bg-gray-100 transition flex gap-4 items-start"
+                >
+                  {a.imagen && (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${a.imagen}`}
+                      alt={a.titulo}
+                      className="w-24 h-24 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1">
                     <p className="font-semibold text-gray-800">{a.titulo}</p>
-                    <p className="text-sm text-gray-600">{a.descripcion}</p>
-                    <p className="text-xs text-gray-400 mt-1">Fecha: {a.fecha}</p>
+                    <p className="text-sm text-gray-600 mb-2">{a.descripcion}</p>
+
+                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                      <CalendarDays className="w-4 h-4 text-blue-500" />
+                      <span>Publicado el: {formatearFecha(a.fechaPublicacion)}</span>
+                    </p>
+
+                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                      <ClipboardClock className="w-4 h-4 text-amber-500" />
+                      <span>Vigente hasta: {formatearFecha(a.fechaVigencia)}</span>
+                    </p>
                   </div>
+                  <button
+                    onClick={() => handleDelete(a.idNoticiaAviso)}
+                    className="text-red-600 hover:text-red-800 font-semibold"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
-
       </div>
     </div>
   )

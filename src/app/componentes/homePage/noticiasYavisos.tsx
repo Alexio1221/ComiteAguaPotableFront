@@ -3,44 +3,39 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import ruta from '@/api/axios' // tu instancia de Axios
+import toast from 'react-hot-toast'
 
 type Noticia = {
-  id: number
+  idNoticiaAviso: number
   titulo: string
   descripcion: string
-  fecha: string
-  imagen: string
+  fechaVigencia: string
+  fechaPublicacion: string
+  imagen?: string
 }
 
-const noticias: Noticia[] = [
-    {
-        id: 1,
-        titulo: 'Nueva apertura de nuestra oficina en el centro',
-        descripcion: 'Estamos emocionados de anunciar que hemos abierto una nueva oficina en el centro de la ciudad. Visítanos y conoce nuestros nuevos servicios...',
-        fecha: '25 de Septiembre, 2023',
-        imagen: '/imagenes/loginImagen.webp',
-    },
-    {
-        id: 2,
-        titulo: 'Evento de networking este fin de semana',
-        descripcion: 'Este sábado realizaremos un evento de networking para empresarios locales. ¡No te lo puedes perder! Regístrate ahora...',
-        fecha: '22 de Septiembre, 2023',
-        imagen: '/imagenes/sofia.jpg',
-    },
-    {
-        id: 3,
-        titulo: 'Promoción especial para nuevos clientes',
-        descripcion: 'Estamos ofreciendo un descuento del 10% en todos nuestros servicios para nuevos clientes durante este mes.',
-        fecha: '20 de Septiembre, 2023',
-        imagen: '/imagenes/ubicacionComite.jpg',
-    },
-]
-
 const NoticiasAvisosCarrusel: React.FC = () => {
+  const [noticias, setNoticias] = useState<Noticia[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
 
+  // 🔹 Obtener avisos/noticias desde la API
+  useEffect(() => {
+    const fetchNoticias = async () => {
+      try {
+        const res = await ruta.get('/avisos') // endpoint de tu backend
+        setNoticias(res.data)
+      } catch (error) {
+        console.error('Error al obtener noticias:', error)
+        toast.error('No se pudieron cargar las noticias o avisos.')
+      }
+    }
+    fetchNoticias()
+  }, [])
+
+  // 🔹 Cambiar slide automáticamente
   useEffect(() => {
     if (isPaused || noticias.length === 0) return
 
@@ -48,18 +43,14 @@ const NoticiasAvisosCarrusel: React.FC = () => {
       setCurrentIndex((prev) => (prev + 1) % noticias.length)
     }, 5000)
     return () => clearInterval(interval)
-  }, [isPaused])
+  }, [isPaused, noticias])
 
   const nextSlide = () => {
-    if (noticias.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % noticias.length)
-    }
+    if (noticias.length > 0) setCurrentIndex((prev) => (prev + 1) % noticias.length)
   }
 
   const prevSlide = () => {
-    if (noticias.length > 0) {
-      setCurrentIndex((prev) => (prev - 1 + noticias.length) % noticias.length)
-    }
+    if (noticias.length > 0) setCurrentIndex((prev) => (prev - 1 + noticias.length) % noticias.length)
   }
 
   const togglePause = () => setIsPaused(!isPaused)
@@ -67,6 +58,21 @@ const NoticiasAvisosCarrusel: React.FC = () => {
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     setShowImageModal(true)
+  }
+
+  // 🔹 Formatear fecha en español
+  const formatearFecha = (fecha: string) => {
+    return new Date(fecha).toLocaleDateString('es-BO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
+  // Imagen por defecto si no hay imagen en el aviso
+  const obtenerImagen = (imagen?: string) => {
+    return imagen ? `${process.env.NEXT_PUBLIC_API_URL}${imagen}` : '/imagenes/imagenDefault.jpg'
   }
 
   return (
@@ -97,12 +103,11 @@ const NoticiasAvisosCarrusel: React.FC = () => {
               >
                 <div className="relative">
                   <img
-                    src={noticias[currentIndex].imagen}
+                    src={obtenerImagen(noticias[currentIndex].imagen)}
                     alt={noticias[currentIndex].titulo}
                     className="w-full h-[500px] object-cover cursor-zoom-in hover:opacity-90 transition-opacity"
                     onClick={handleImageClick}
                   />
-                  {/* Indicadores de estado */}
                   {isPaused ? (
                     <div className="absolute top-4 right-4 bg-cyan-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
                       <Pause className="w-4 h-4" />
@@ -120,11 +125,9 @@ const NoticiasAvisosCarrusel: React.FC = () => {
                     {noticias[currentIndex].titulo}
                   </h4>
                   <p className="text-sm text-gray-400 mb-4">
-                    {noticias[currentIndex].fecha}
+                    Vigente hasta: {formatearFecha(noticias[currentIndex].fechaVigencia)}
                   </p>
-                  <p className="text-gray-600">
-                    {noticias[currentIndex].descripcion}
-                  </p>
+                  <p className="text-gray-600">{noticias[currentIndex].descripcion}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -182,7 +185,7 @@ const NoticiasAvisosCarrusel: React.FC = () => {
               ×
             </button>
             <img
-              src={noticias[currentIndex].imagen}
+              src={obtenerImagen(noticias[currentIndex].imagen)}
               alt={noticias[currentIndex].titulo}
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
             />

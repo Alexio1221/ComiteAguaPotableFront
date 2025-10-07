@@ -1,148 +1,103 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, Clock, CheckCircle, XCircle, File } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { FileText, PlusCircle } from 'lucide-react'
+import ruta from '@/api/axios' // ← tu instancia personalizada de Axios
 
 interface Reunion {
-  id: number
-  tipo: 'Reunión' | 'Asamblea'
+  tipo: string
   fecha: string
   hora: string
   lugar: string
   motivo: string
   descripcion: string
-  estado: 'Programada' | 'Realizada' | 'Cancelada'
-  documentoAsamblea?: string // opcional
+  documentoAsamblea?: string
 }
 
 interface Aviso {
-  id: number
   titulo: string
   descripcion: string
   fecha: string
   imagen?: string
 }
 
-// Datos iniciales
-const reunionesIniciales: Reunion[] = [
-  {
-    id: 1,
-    tipo: 'Asamblea',
-    fecha: '05/10/2025',
-    hora: '18:00',
-    lugar: 'Sala de reuniones principal',
-    motivo: 'Asamblea General',
-    descripcion: 'Aprobación del presupuesto anual y elección de nueva directiva.',
-    estado: 'Programada',
-  },
-  {
-    id: 2,
-    tipo: 'Reunión',
-    fecha: '28/09/2025',
-    hora: '10:00',
-    lugar: 'Oficina comité',
-    motivo: 'Mantenimiento Red Principal',
-    descripcion: 'Coordinar trabajos de mantenimiento en la red.',
-    estado: 'Realizada',
-  },
+const tipos = [
+  'Reunión de Directorio',
+  'Asamblea General',
+  'Trabajo',
+  'Reunión Técnica',
+  'Otro',
 ]
 
 const ReunionesAdmin: React.FC = () => {
-  // Estados para formulario
-  const [tipo, setTipo] = useState<'Reunión' | 'Asamblea'>('Reunión')
+  const [tipo, setTipo] = useState(tipos[0])
+  const [otroTipo, setOtroTipo] = useState('')
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
   const [lugar, setLugar] = useState('')
   const [motivo, setMotivo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [documento, setDocumento] = useState<File | null>(null)
-
-  // Opciones de aviso
-  const [generarAviso, setGenerarAviso] = useState(false)
   const [imagenAviso, setImagenAviso] = useState<File | null>(null)
+  const [imagenPreview, setImagenPreview] = useState<string | null>(null)
 
-  // Datos
-  const [reuniones, setReuniones] = useState<Reunion[]>(reunionesIniciales)
+  const [reuniones, setReuniones] = useState<Reunion[]>([])
   const [avisos, setAvisos] = useState<Aviso[]>([])
 
-  // Crear nueva reunión/asamblea
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!fecha || !hora || !lugar || !motivo || !descripcion) return
 
-    const nuevaReunion: Reunion = {
-      id: reuniones.length + 1,
-      tipo,
-      fecha,
-      hora,
-      lugar,
-      motivo,
-      descripcion,
-      estado: 'Programada',
-      documentoAsamblea: documento ? documento.name : '',
-    }
-    setReuniones([nuevaReunion, ...reuniones])
+    const tipoFinal = tipo === 'Otro' ? otroTipo : tipo
 
-    // Si se quiere generar aviso/noticia
-    if (generarAviso) {
-      const nuevoAviso: Aviso = {
-        id: avisos.length + 1,
-        titulo: motivo,
-        descripcion,
-        fecha,
-        imagen: imagenAviso ? URL.createObjectURL(imagenAviso) : '',
-      }
-      setAvisos([nuevoAviso, ...avisos])
-    }
+    try {
+      const formData = new FormData()
+      formData.append('tipo', tipoFinal)
+      formData.append('fecha', fecha)
+      formData.append('hora', hora)
+      formData.append('lugar', lugar)
+      formData.append('motivo', motivo)
+      formData.append('descripcion', descripcion)
+      if (documento) formData.append('documentoAsamblea', documento)
+      if (imagenAviso) formData.append('imagenAviso', imagenAviso)
 
-    // Reset form
-    setTipo('Reunión')
-    setFecha('')
-    setHora('')
-    setLugar('')
-    setMotivo('')
-    setDescripcion('')
-    setDocumento(null)
-    setGenerarAviso(false)
-    setImagenAviso(null)
-  }
+      // Enviar datos al backend
+      const response = await ruta.post('/reuniones', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
 
-  // Icono por estado
-  const getEstadoIcon = (estado: Reunion['estado']) => {
-    switch (estado) {
-      case 'Programada':
-        return <Clock className="w-4 h-4 text-orange-500" />
-      case 'Realizada':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
-      case 'Cancelada':
-        return <XCircle className="w-4 h-4 text-red-600" />
-    }
-  }
+      // El backend debe devolver la reunión creada + aviso
+      const { reunionCreada, avisoCreado } = response.data
 
-  // Gradiente por estado
-  const getGradient = (estado: Reunion['estado']) => {
-    switch (estado) {
-      case 'Programada':
-        return 'from-orange-400 to-orange-600'
-      case 'Realizada':
-        return 'from-green-400 to-green-600'
-      case 'Cancelada':
-        return 'from-red-400 to-red-600'
-      default:
-        return 'from-gray-400 to-gray-600'
+      // Actualizar estados
+      setReuniones([reunionCreada, ...reuniones])
+      if (avisoCreado) setAvisos([avisoCreado, ...avisos])
+
+      // Reset formulario
+      setTipo(tipos[0])
+      setOtroTipo('')
+      setFecha('')
+      setHora('')
+      setLugar('')
+      setMotivo('')
+      setDescripcion('')
+      setDocumento(null)
+      setImagenAviso(null)
+      setImagenPreview(null)
+    } catch (error) {
+      console.error('Error al crear la reunión:', error)
+      alert('Ocurrió un error al crear la reunión.')
     }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-3 rounded-xl">
-              <FileText className="w-8 h-8" />
+              <PlusCircle className="w-8 h-8" />
             </div>
             <div>
               <h2 className="text-3xl font-bold">Reuniones / Asambleas</h2>
@@ -151,32 +106,7 @@ const ReunionesAdmin: React.FC = () => {
           </div>
         </div>
 
-        {/* Dashboard de estados */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-xl p-4 shadow-md flex items-center gap-3">
-            <Clock className="w-6 h-6" />
-            <div>
-              <p className="text-sm opacity-90">Programadas</p>
-              <p className="font-bold text-lg">{reuniones.filter(r => r.estado === 'Programada').length}</p>
-            </div>
-          </div>
-          <div className="bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl p-4 shadow-md flex items-center gap-3">
-            <CheckCircle className="w-6 h-6" />
-            <div>
-              <p className="text-sm opacity-90">Realizadas</p>
-              <p className="font-bold text-lg">{reuniones.filter(r => r.estado === 'Realizada').length}</p>
-            </div>
-          </div>
-          <div className="bg-gradient-to-r from-red-400 to-red-600 text-white rounded-xl p-4 shadow-md flex items-center gap-3">
-            <XCircle className="w-6 h-6" />
-            <div>
-              <p className="text-sm opacity-90">Canceladas</p>
-              <p className="font-bold text-lg">{reuniones.filter(r => r.estado === 'Cancelada').length}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Formulario de nueva reunión/asamblea */}
+        {/* Formulario */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h3 className="text-lg font-bold mb-4 text-blue-700">Nueva Reunión / Asamblea</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -184,13 +114,28 @@ const ReunionesAdmin: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">Tipo</label>
               <select
                 value={tipo}
-                onChange={(e) => setTipo(e.target.value as 'Reunión' | 'Asamblea')}
+                onChange={(e) => setTipo(e.target.value)}
                 className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
-                <option value="Reunión">Reunión</option>
-                <option value="Asamblea">Asamblea</option>
+                {tipos.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
               </select>
             </div>
+
+            {tipo === 'Otro' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Especifica el tipo</label>
+                <input
+                  type="text"
+                  value={otroTipo}
+                  onChange={(e) => setOtroTipo(e.target.value)}
+                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Ej: Reunión extraordinaria, capacitación..."
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Fecha</label>
@@ -211,6 +156,7 @@ const ReunionesAdmin: React.FC = () => {
                 />
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Lugar</label>
               <input
@@ -220,6 +166,7 @@ const ReunionesAdmin: React.FC = () => {
                 className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Motivo</label>
               <input
@@ -227,9 +174,10 @@ const ReunionesAdmin: React.FC = () => {
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
                 className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Ej: Asamblea general, coordinación de mantenimiento..."
+                placeholder="Ej: Aprobación presupuesto, coordinación de mantenimiento..."
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Descripción</label>
               <textarea
@@ -241,100 +189,52 @@ const ReunionesAdmin: React.FC = () => {
               />
             </div>
 
-            {/* Opción para generar aviso */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={generarAviso}
-                onChange={(e) => setGenerarAviso(e.target.checked)}
-                id="generarAviso"
-                className="w-4 h-4"
-              />
-              <label htmlFor="generarAviso" className="text-gray-700 text-sm">
-                Generar aviso/noticia
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Documento de Asamblea (opcional)
               </label>
+              <input type="file" onChange={(e) => setDocumento(e.target.files ? e.target.files[0] : null)} className="mt-1 w-full" />
             </div>
 
-            {/* Subir imagen opcional para aviso */}
-            {generarAviso && (
-              <div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700">Imagen (opcional)</label>
                 <input
                   type="file"
-                  onChange={(e) => setImagenAviso(e.target.files ? e.target.files[0] : null)}
-                  className="mt-1 w-full"
+                  accept="image/*"
+                  onChange={(e) => {
+                    // Si se selecciona un archivo, lo guarda; si se cancela, limpia el estado
+                    const file = e.target.files?.[0] || null
+                    setImagenAviso(file)
+                  }}
+                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
-            )}
+
+              {/* Preview de la imagen seleccionada */}
+              {imagenAviso && (
+                <div className="flex-shrink-0">
+                  <p className="text-sm text-gray-600 mb-1 text-center">Vista previa</p>
+                  <img
+                    src={URL.createObjectURL(imagenAviso)}
+                    alt="Imagen seleccionada"
+                    className="w-80 h-80 object-cover rounded-lg border shadow-sm"
+                  />
+                </div>
+              )}
+            </div>
 
             <button
               type="submit"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
             >
-              Crear
+              Crear Reunión
             </button>
           </form>
         </div>
-
-        {/* Historial de reuniones/asambleas */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold mb-4 text-blue-700">Historial</h3>
-          {reuniones.length === 0 ? (
-            <p className="text-gray-500">No se han registrado reuniones o asambleas.</p>
-          ) : (
-            <div className="space-y-3">
-              {reuniones.map((r) => (
-                <div
-                  key={r.id}
-                  className={`shadow-md rounded-xl overflow-hidden p-4 cursor-pointer transform hover:-translate-y-1 transition-all duration-300 bg-gradient-to-r ${getGradient(r.estado)} text-white`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-lg">
-                        {r.motivo} {r.tipo === 'Asamblea' && <span className="ml-2 px-2 py-0.5 text-xs bg-white/30 rounded-full">Asamblea</span>}
-                      </p>
-                      <p className="text-sm">{r.descripcion}</p>
-                      <p className="text-xs mt-1">Fecha: {r.fecha} - Hora: {r.hora}</p>
-                      <p className="text-xs">Lugar: {r.lugar}</p>
-                      {r.documentoAsamblea && (
-                        <p className="flex items-center gap-1 mt-1 text-sm">
-                          <File className="w-4 h-4" /> {r.documentoAsamblea}
-                        </p>
-                      )}
-                    </div>
-                    <span className="flex items-center gap-1 text-sm font-semibold">
-                      {getEstadoIcon(r.estado)} {r.estado}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Lista de avisos generados */}
-        {avisos.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-lg font-bold mb-4 text-blue-700">Avisos Generados</h3>
-            <div className="space-y-3">
-              {avisos.map((a) => (
-                <div key={a.id} className="bg-gray-50 border rounded-xl p-4 hover:bg-gray-100 transition flex gap-4">
-                  {a.imagen && <img src={a.imagen} alt={a.titulo} className="w-24 h-24 object-cover rounded-lg" />}
-                  <div>
-                    <p className="font-semibold text-gray-800">{a.titulo}</p>
-                    <p className="text-sm text-gray-600">{a.descripcion}</p>
-                    <p className="text-xs text-gray-400 mt-1">Fecha: {a.fecha}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
       </div>
     </div>
   )
 }
 
 export default ReunionesAdmin
-
