@@ -91,6 +91,7 @@ export default function ModalUsuario({
         if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
         if (!formData.apellidos.trim()) newErrors.apellidos = 'El apellido es requerido'
         if (!formData.ci.trim()) newErrors.ci = 'El CI es requerido'
+        if (!formData.telefono?.trim()) newErrors.telefono = 'El teléfono es requerido'
 
         if (!isEditing && !formData.contraseña) {
             newErrors.contraseña = 'La contraseña es requerida'
@@ -258,7 +259,7 @@ export default function ModalUsuario({
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 <Phone className="inline w-4 h-4 mr-1" />
-                                                Teléfono
+                                                Teléfono *
                                             </label>
                                             <input
                                                 type="tel"
@@ -267,13 +268,14 @@ export default function ModalUsuario({
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 placeholder="+591 12345678"
                                             />
+                                            {errors.telefono && <p className="mt-1 text-sm text-red-600">{errors.telefono}</p>}
                                         </div>
 
-                                        {/* Campo de contraseña — también visible al editar */}
+                                        {/* Campo de contraseña */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 <Lock className="inline w-4 h-4 mr-1" />
-                                                Contraseña {isEditing && <span className="text-gray-500 text-sm">(opcional)</span>}
+                                                Contraseña {isEditing ? (<span className="text-gray-500 text-sm">(opcional)</span>) : (<span className="text-gray-500">*</span>)}
                                             </label>
                                             <div className="relative">
                                                 <input
