@@ -1,9 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { PlusCircle } from 'lucide-react'
-import ruta from '@/api/axios'
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
+import { Calendar, Users, Plus, ClipboardList } from 'lucide-react'
+import ruta from '@/api/axios'
+import ReunionForm from './ReunionForm'
+import ReunionesList from './ReunionesList'
+import ConfirmModal from '@/app/modals/ConfirmModal'
 
 interface Reunion {
   idReunion: number
@@ -13,280 +17,173 @@ interface Reunion {
   lugar: string
   motivo: string
   descripcion: string
-  documentoAsamblea?: string
 }
 
-const tipos = [
-  'Reunión de Directorio',
-  'Asamblea General',
-  'Trabajo',
-  'Reunión Técnica',
-  'Otro',
-]
-
 const ReunionesAdmin: React.FC = () => {
-  // Estados de formulario
-  const [tipo, setTipo] = useState(tipos[0])
-  const [otroTipo, setOtroTipo] = useState('')
-  const [fecha, setFecha] = useState('')
-  const [hora, setHora] = useState('')
-  const [lugar, setLugar] = useState('')
-  const [motivo, setMotivo] = useState('')
-  const [descripcion, setDescripcion] = useState('')
-  const [documento, setDocumento] = useState<File | null>(null)
-  const [imagenAviso, setImagenAviso] = useState<File | null>(null)
-
-  // Reuniones vigentes
   const [reuniones, setReuniones] = useState<Reunion[]>([])
+  const [loading, setLoading] = useState(true)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
-  // 🗂 Obtener reuniones vigentes
   useEffect(() => {
     const fetchReuniones = async () => {
       try {
         const res = await ruta.get('/avisos/reunion')
         setReuniones(res.data)
-      } catch (error: any) {
-        console.error('Error al obtener reuniones:', error)
+      } catch {
         toast.error('No se pudieron cargar las reuniones.')
+      } finally {
+        setLoading(false)
       }
     }
     fetchReuniones()
   }, [])
 
-  // 📌 Crear reunión + aviso
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!fecha || !hora || !lugar || !motivo || !descripcion) {
-      toast.error('Por favor completa todos los campos obligatorios.')
-      return
-    }
+  const handleDelete = (id: number) => {
+    setSelectedId(id)
+    setConfirmOpen(true)
+  }
 
-    const tipoFinal = tipo === 'Otro' ? otroTipo : tipo
-
+  const handleConfirmDelete = async () => {
+    if (selectedId == null) return
     try {
-      // FormData reunión
-      const formDataReuniones = new FormData()
-      formDataReuniones.append('tipo', tipoFinal)
-      formDataReuniones.append('fecha', fecha)
-      formDataReuniones.append('hora', hora)
-      formDataReuniones.append('lugar', lugar)
-      formDataReuniones.append('motivo', motivo)
-      formDataReuniones.append('descripcion', descripcion)
-      if (documento) formDataReuniones.append('documentoAsamblea', documento)
-
-      // FormData aviso
-      const formDataAvisos = new FormData()
-      formDataAvisos.append('titulo', motivo)
-      formDataAvisos.append('descripcion', descripcion)
-      formDataAvisos.append('fechaVigencia', fecha)
-      if (imagenAviso) formDataAvisos.append('imagen', imagenAviso)
-
-      // Enviar ambas solicitudes en paralelo
-      const [resReunion, resAviso] = await Promise.all([
-        ruta.post('/avisos/reunion', formDataReuniones, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }),
-        ruta.post('/avisos', formDataAvisos, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }),
-      ])
-
-      const reunionCreada: Reunion = resReunion.data
-
-      // Actualizar listado
-      setReuniones([reunionCreada, ...reuniones])
-
-      // Mostrar mensaje de backend si lo envía
-      if (resReunion.data.message) toast.success(resReunion.data.message)
-      if (resAviso.data.message) toast.success(resAviso.data.message)
-
-      toast.success('Reunión y aviso creados correctamente.')
-
-      // Reset formulario
-      setTipo(tipos[0])
-      setOtroTipo('')
-      setFecha('')
-      setHora('')
-      setLugar('')
-      setMotivo('')
-      setDescripcion('')
-      setDocumento(null)
-      setImagenAviso(null)
-    } catch (error: any) {
-      console.error('Error al crear reunión o aviso:', error)
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message)
-      } else {
-        toast.error('Ocurrió un error al crear la reunión o aviso.')
-      }
+      await ruta.delete(`/avisos/reunion/${selectedId}`)
+      setReuniones(reuniones.filter(r => r.idReunion !== selectedId))
+      toast.success('Reunión eliminada correctamente.')
+    } catch {
+      toast.error('No se pudo eliminar la reunión.')
+    } finally {
+      setConfirmOpen(false)
+      setSelectedId(null)
     }
   }
 
-  // 🗑 Eliminar reunión
-  const handleDeleteReunion = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta reunión?')) return
-
-    try {
-      const res = await ruta.delete(`/avisos/reunion/${id}`)
-      setReuniones(reuniones.filter(r => r.idReunion !== id))
-      toast.success(res.data?.message || 'Reunión eliminada correctamente.')
-    } catch (error: any) {
-      console.error('Error al eliminar reunión:', error)
-      toast.error('No se pudo eliminar la reunión.')
-    }
+  const handleCreated = (reunion: Reunion) => {
+    setReuniones([reunion, ...reuniones])
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white">
-          <div className="flex items-center gap-3">
-            <div className="bg-white/20 p-3 rounded-xl">
-              <PlusCircle className="w-8 h-8" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold">Reuniones / Asambleas</h2>
-              <p className="text-blue-100">Crea reuniones/asambleas y genera avisos automáticamente</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 p-3 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        {/* Header Principal */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100"
+        >
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                <Users className="text-white" size={32} />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">
+                  Reuniones y Asambleas
+                </h1>
+                <p className="text-blue-100 text-sm sm:text-base">
+                  Gestiona las convocatorias y eventos de la comunidad
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Formulario */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold mb-4 text-blue-700">Nueva Reunión / Asamblea</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo</label>
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                {tipos.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
+          {/* Stats móvil */}
+          <div className="sm:hidden bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 flex items-center justify-center gap-2 text-white">
+            <Calendar size={18} />
+            <span className="font-semibold">{reuniones.length}</span>
+            <span className="text-sm">Reuniones Vigentes</span>
+          </div>
+        </motion.div>
 
-            {tipo === 'Otro' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Especifica el tipo</label>
-                <input
-                  type="text"
-                  value={otroTipo}
-                  onChange={(e) => setOtroTipo(e.target.value)}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Ej: Reunión extraordinaria, capacitación..."
-                />
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Fecha</label>
-                <input
-                  type="date"
-                  value={fecha}
-                  onChange={(e) => setFecha(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
+        {/* Formulario de Nueva Reunión */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100"
+        >
+          {/* Header del formulario */}
+          <div className="bg-gradient-to-r from-blue-100 to-cyan-100 px-6 py-4 border-b border-blue-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-600 rounded-lg">
+                <Plus className="text-white" size={20} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Hora</label>
-                <input
-                  type="time"
-                  value={hora}
-                  onChange={(e) => setHora(e.target.value)}
-                  className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
+                <h3 className="text-lg sm:text-xl font-bold text-blue-900">
+                  Nueva Reunión / Asamblea
+                </h3>
+                <p className="text-sm text-blue-700 hidden sm:block">
+                  Completa los datos para crear una nueva convocatoria
+                </p>
               </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Lugar</label>
-              <input
-                type="text"
-                value={lugar}
-                onChange={(e) => setLugar(e.target.value)}
-                className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
+          {/* Contenido del formulario */}
+          <div className="p-4 sm:p-6">
+            <ReunionForm onCreated={handleCreated} />
+          </div>
+        </motion.div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Motivo</label>
-              <input
-                type="text"
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Ej: Aprobación presupuesto, coordinación de mantenimiento..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Descripción</label>
-              <textarea
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Detalles de la reunión/asamblea..."
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Documento de Asamblea (opcional)
-              </label>
-              <input type="file" onChange={(e) => setDocumento(e.target.files?.[0] || null)} className="mt-1 w-full" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Imagen de aviso (opcional)</label>
-              <input type="file" accept="image/*" onChange={(e) => setImagenAviso(e.target.files?.[0] || null)} className="mt-1 w-full" />
-            </div>
-
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Crear Reunión
-            </button>
-          </form>
-        </div>
-
-        {/* Lista de reuniones vigentes */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-lg font-bold mb-4 text-blue-700">Reuniones Vigentes</h3>
-          {reuniones.length === 0 ? (
-            <p className="text-gray-500">No hay reuniones vigentes.</p>
-          ) : (
-            <div className="space-y-3">
-              {reuniones.map(r => (
-                <div
-                  key={r.idReunion}
-                  className="bg-gray-50 border rounded-xl p-4 hover:bg-gray-100 transition flex gap-4 items-start"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-800">{r.tipo}</p>
-                    <p className="text-sm text-gray-600">{r.motivo}</p>
-                    <p className="text-xs text-gray-500">Fecha: {new Date(r.fecha).toLocaleDateString('es-BO')}</p>
-                    <p className="text-xs text-gray-500">Hora: {r.hora}</p>
-                    <p className="text-xs text-gray-500">Lugar: {r.lugar}</p>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteReunion(r.idReunion)}
-                    className="text-red-600 hover:text-red-800 font-semibold"
-                  >
-                    Eliminar
-                  </button>
+        {/* Lista de Reuniones */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100"
+        >
+          {/* Header de la lista */}
+          <div className="bg-gradient-to-r from-cyan-100 to-teal-100 px-6 py-4 border-b border-cyan-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-cyan-600 rounded-lg">
+                <ClipboardList className="text-white" size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-xl font-bold text-cyan-900">
+                  Reuniones Vigentes
+                </h3>
+                <p className="text-sm text-cyan-700 hidden sm:block">
+                  Lista de todas las reuniones programadas
+                </p>
+              </div>
+              {reuniones.length > 0 && (
+                <div className="bg-cyan-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  {reuniones.length}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </div>
+
+          {/* Contenido de la lista */}
+          <div className="p-4 sm:p-6">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4" />
+                <p className="text-gray-500">Cargando reuniones...</p>
+              </div>
+            ) : reuniones.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="p-4 bg-gray-100 rounded-full mb-4">
+                  <Calendar className="text-gray-400" size={48} />
+                </div>
+                <p className="text-gray-600 font-medium text-lg">No hay reuniones programadas</p>
+                <p className="text-gray-500 text-sm mt-2">Crea una nueva reunión para comenzar</p>
+              </div>
+            ) : (
+              <ReunionesList reuniones={reuniones} onDelete={handleDelete} />
+            )}
+          </div>
+        </motion.div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title={'Eliminar Reunión'}
+        message="¿Estás seguro de eliminar esta reunión?"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }

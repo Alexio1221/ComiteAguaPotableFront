@@ -20,7 +20,6 @@ const AvisosAdmin: React.FC = () => {
   const [fechaVigencia, setFechaVigencia] = useState('')
   const [imagen, setImagen] = useState<File | null>(null)
   const [avisos, setAvisos] = useState<Aviso[]>([])
-  const [errorFecha, setErrorFecha] = useState<string | null>(null)
 
   //  Obtener avisos al cargar el componente
   useEffect(() => {
@@ -43,13 +42,6 @@ const AvisosAdmin: React.FC = () => {
       toast.error('Por favor, completa todos los campos.')
       return
     }
-
-    const hoy = new Date().toISOString().split('T')[0]
-    if (fechaVigencia <= hoy) {
-      setErrorFecha('La fecha de vigencia debe ser posterior al día actual.')
-      return
-    }
-    setErrorFecha(null)
 
     try {
       const formData = new FormData()
@@ -149,14 +141,8 @@ const AvisosAdmin: React.FC = () => {
                 value={fechaVigencia}
                 onChange={(e) => setFechaVigencia(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className={`mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${errorFecha ? 'border-red-500 focus:ring-red-400' : 'focus:ring-blue-400'
-                  }`}
+                className={"mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-"}
               />
-              {errorFecha && (
-                <p className="flex items-center gap-1 text-sm text-red-600 mt-1">
-                  <AlertCircle className="w-4 h-4" /> {errorFecha}
-                </p>
-              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Imagen (opcional)</label>
