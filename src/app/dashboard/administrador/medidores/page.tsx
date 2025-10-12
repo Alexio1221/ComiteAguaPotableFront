@@ -32,7 +32,7 @@ export default function MedidoresPage() {
                 const [medidoresRes, sociosRes, categoriasRes] = await Promise.all([
                     ruta.get('/mapa/medidores'), 
                     ruta.get('/auth/usuarios'),     
-                    ruta.get('/auth/categorias'),   
+                    ruta.get('/servicios/categorias'),   
                 ])
 
                 // Guardar en estado

@@ -17,7 +17,7 @@ interface ModalMedidorProps {
     onSave: (data: MedidorFormData) => void
     loading: boolean
     socios: { idUsuario: number; nombre: string; apellidos: string }[]
-    categorias: { idCategoria: number; nombre: string }[]
+    categorias: { idCategoria: number; tipo: string }[]
 }
 
 const initialFormData: MedidorFormData = {
@@ -218,7 +218,7 @@ export default function ModalUsuario({
                                                 <option value="">Selecciona una categoría</option>
                                                 {categorias.map((cat) => (
                                                     <option key={cat.idCategoria} value={cat.idCategoria}>
-                                                        {cat.nombre}
+                                                        {cat.tipo}
                                                     </option>
                                                 ))}
                                             </select>

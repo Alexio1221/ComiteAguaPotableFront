@@ -1,14 +1,15 @@
 'use client'
 
-import React, { useEffect, useState, Fragment } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { PlusCircle, Pencil, Trash2, Save, X } from 'lucide-react'
-import axios from '@/api/axios'
+import { PlusCircle, Pencil, Trash2, Droplets } from 'lucide-react'
+import ruta from '@/api/axios'
+import ConfirmModal from '@/app/modals/ConfirmModal'
+import CategoriaModal from './CategoriaModal'
 
 interface Categoria {
-  idCategoria?: number
+  idCategoria: number
   tipo: string
   tarifa: number
   tarifaAdicional: number
@@ -19,15 +20,9 @@ interface Categoria {
 const CategoriasAdmin: React.FC = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [editing, setEditing] = useState<Categoria | null>(null)
-  const [form, setForm] = useState<Categoria>({
-    tipo: '',
-    tarifa: 0,
-    tarifaAdicional: 0,
-    limiteBasico: 0,
-    descripcion: '',
-  })
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
   useEffect(() => {
     fetchCategorias()
@@ -35,7 +30,7 @@ const CategoriasAdmin: React.FC = () => {
 
   const fetchCategorias = async () => {
     try {
-      const res = await axios.get('/categorias')
+      const res = await ruta.get('/servicios/categorias')
       setCategorias(res.data)
     } catch {
       toast.error('Error al cargar categorías')
@@ -45,16 +40,8 @@ const CategoriasAdmin: React.FC = () => {
   const openModal = (categoria?: Categoria) => {
     if (categoria) {
       setEditing(categoria)
-      setForm(categoria)
     } else {
       setEditing(null)
-      setForm({
-        tipo: '',
-        tarifa: 0,
-        tarifaAdicional: 0,
-        limiteBasico: 0,
-        descripcion: '',
-      })
     }
     setIsOpen(true)
   }
@@ -64,236 +51,258 @@ const CategoriasAdmin: React.FC = () => {
     setEditing(null)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      if (editing) {
-        await axios.put(`/categorias/${editing.idCategoria}`, form)
-        toast.success('Categoría actualizada correctamente')
-      } else {
-        await axios.post('/categorias', form)
-        toast.success('Categoría registrada correctamente')
-      }
-      fetchCategorias()
-      closeModal()
-    } catch {
-      toast.error('Error al guardar la categoría')
-    } finally {
-      setLoading(false)
-    }
+  const handleDelete = (id: number) => {
+    setSelectedId(id)
+    setConfirmOpen(true)
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('¿Deseas eliminar esta categoría?')) return
+  const handleConfirmDelete = async () => {
+    if (selectedId == null) return
     try {
-      await axios.delete(`/categorias/${id}`)
-      toast.success('Categoría eliminada correctamente')
+      const response = await ruta.delete(`/servicios/categoria/${selectedId}`)
+      toast.success(response.data?.mensaje?.toString() || 'Categoría eliminada correctamente')
       fetchCategorias()
-    } catch {
-      toast.error('Error al eliminar la categoría')
+    } catch (error: any) {
+      toast.error(error.response?.data?.mensaje || 'Error al eliminar la categoría')
+    } finally {
+      setConfirmOpen(false)
+      setSelectedId(null)
     }
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-6"
-      >
-        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-          <PlusCircle className="text-blue-600" /> Gestión de Categorías
-        </h1>
-        <button
-          onClick={() => openModal()}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 p-3 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-4 sm:mb-8"
         >
-          <PlusCircle size={18} /> Nueva Categoría
-        </button>
-      </motion.div>
-
-      {/* Tabla */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="overflow-x-auto bg-white rounded-2xl shadow border"
-      >
-        <table className="w-full text-sm text-left border-collapse">
-          <thead className="bg-gray-100 text-gray-700 uppercase">
-            <tr>
-              <th className="p-3">Tipo</th>
-              <th className="p-3">Tarifa Básica (Bs)</th>
-              <th className="p-3">Tarifa Adicional (Bs/m³)</th>
-              <th className="p-3">Límite Básico (m³)</th>
-              <th className="p-3">Descripción</th>
-              <th className="p-3 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categorias.map((cat) => (
-              <motion.tr
-                key={cat.idCategoria}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="border-b hover:bg-gray-50"
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 border border-blue-100">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg sm:rounded-xl shadow-lg flex-shrink-0">
+                  <Droplets className="text-white" size={24} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
+                    Gestión de Categorías
+                  </h1>
+                  <p className="text-gray-500 text-xs sm:text-sm mt-1">
+                    Administra las tarifas de agua potable
+                  </p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => openModal()}
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300 font-medium text-sm sm:text-base"
               >
-                <td className="p-3">{cat.tipo}</td>
-                <td className="p-3">{cat.tarifa.toFixed(2)}</td>
-                <td className="p-3">{cat.tarifaAdicional.toFixed(2)}</td>
-                <td className="p-3">{cat.limiteBasico.toFixed(2)}</td>
-                <td className="p-3 text-gray-600">{cat.descripcion}</td>
-                <td className="p-3 flex justify-center gap-3">
-                  <button
+                <PlusCircle size={18} /> Nueva Categoría
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tabla */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="hidden lg:block bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
+                  <th className="p-4 text-left font-semibold">Tipo</th>
+                  <th className="p-4 text-left font-semibold">Tarifa Básica</th>
+                  <th className="p-4 text-left font-semibold">Tarifa Adicional</th>
+                  <th className="p-4 text-left font-semibold">Límite Básico</th>
+                  <th className="p-4 text-left font-semibold">Descripción</th>
+                  <th className="p-4 text-center font-semibold">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categorias.map((cat, index) => (
+                  <motion.tr
+                    key={cat.idCategoria}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="border-b border-blue-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all duration-300"
+                  >
+                    <td className="p-4">
+                      <span className="font-semibold text-gray-800 bg-blue-100 px-3 py-1 rounded-lg inline-block">
+                        {cat.tipo}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-blue-600">
+                          {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.tarifa)}
+                        </span>
+                        <span className="text-xs text-gray-500">Bs</span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-cyan-600">
+                          {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.tarifaAdicional)}
+                        </span>
+                        <span className="text-xs text-gray-500">Bs/m³</span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-teal-600">
+                          {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.limiteBasico)}
+                        </span>
+                        <span className="text-xs text-gray-500">m³</span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-gray-600 text-sm">{cat.descripcion}</span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex justify-center gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => openModal(cat)}
+                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all duration-300 shadow-sm hover:shadow-md"
+                        >
+                          <Pencil size={18} />
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleDelete(cat.idCategoria)}
+                          className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all duration-300 shadow-sm hover:shadow-md"
+                        >
+                          <Trash2 size={18} />
+                        </motion.button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {categorias.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-12 text-center"
+            >
+              <Droplets className="mx-auto text-gray-300 mb-4" size={64} />
+              <p className="text-gray-500 text-lg font-medium">No hay categorías registradas</p>
+              <p className="text-gray-400 text-sm mt-2">Comienza agregando una nueva categoría</p>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Vista Mobile/Tablet */}
+        <div className="lg:hidden space-y-3 sm:space-y-4">
+          {categorias.map((cat, index) => (
+            <motion.div
+              key={cat.idCategoria}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="bg-white rounded-xl shadow-lg border border-blue-100 overflow-hidden"
+            >
+              {/* Header de la card */}
+              <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 flex items-center justify-between">
+                <span className="font-bold text-white text-lg">{cat.tipo}</span>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => openModal(cat)}
-                    className="text-blue-500 hover:text-blue-700"
+                    className="p-2 bg-white/20 text-white rounded-lg backdrop-blur-sm active:bg-white/30 transition-all"
                   >
                     <Pencil size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cat.idCategoria!)}
-                    className="text-red-500 hover:text-red-700"
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handleDelete(cat.idCategoria)}
+                    className="p-2 bg-white/20 text-white rounded-lg backdrop-blur-sm active:bg-white/30 transition-all"
                   >
                     <Trash2 size={18} />
-                  </button>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
+                  </motion.button>
+                </div>
+              </div>
 
-      {/* Modal */}
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-200"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-30" />
-          </Transition.Child>
+              {/* Contenido de la card */}
+              <div className="p-4 space-y-3">
+                {/* Tarifas en grid */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-blue-50 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-600 mb-1">Tarifa Básica</p>
+                    <p className="font-bold text-blue-600 text-sm sm:text-base">
+                      {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.tarifa)}
+                    </p>
+                    <p className="text-xs text-gray-500">Bs</p>
+                  </div>
 
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-90"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-90"
+                  <div className="bg-cyan-50 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-600 mb-1">Tarifa Adic.</p>
+                    <p className="font-bold text-cyan-600 text-sm sm:text-base">
+                      {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.tarifaAdicional)}
+                    </p>
+                    <p className="text-xs text-gray-500">Bs/m³</p>
+                  </div>
+
+                  <div className="bg-teal-50 rounded-lg p-3 text-center">
+                    <p className="text-xs text-gray-600 mb-1">Límite Básico</p>
+                    <p className="font-bold text-teal-600 text-sm sm:text-base">
+                      {new Intl.NumberFormat('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cat.limiteBasico)}
+                    </p>
+                    <p className="text-xs text-gray-500">m³</p>
+                  </div>
+                </div>
+
+                {/* Descripción */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 mb-1">Descripción</p>
+                  <p className="text-sm text-gray-700">{cat.descripcion}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+
+          {categorias.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-white rounded-xl shadow-lg border border-blue-100 p-8 sm:p-12 text-center"
             >
-              <Dialog.Panel className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6">
-                <Dialog.Title className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  {editing ? 'Editar Categoría' : 'Nueva Categoría'}
-                </Dialog.Title>
+              <Droplets className="mx-auto text-gray-300 mb-4" size={48} />
+              <p className="text-gray-500 text-base sm:text-lg font-medium">No hay categorías registradas</p>
+              <p className="text-gray-400 text-xs sm:text-sm mt-2">Comienza agregando una nueva categoría</p>
+            </motion.div>
+          )}
+        </div>
+      </div>
 
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium">Tipo</label>
-                    <input
-                      type="text"
-                      value={form.tipo}
-                      onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                      required
-                      className="w-full border p-2 rounded-lg focus:outline-blue-500"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium">
-                        Tarifa Básica (Bs)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={form.tarifa}
-                        onChange={(e) =>
-                          setForm({ ...form, tarifa: parseFloat(e.target.value) })
-                        }
-                        required
-                        className="w-full border p-2 rounded-lg focus:outline-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium">
-                        Tarifa Adicional (Bs/m³)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={form.tarifaAdicional}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            tarifaAdicional: parseFloat(e.target.value),
-                          })
-                        }
-                        required
-                        className="w-full border p-2 rounded-lg focus:outline-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Límite Básico (m³)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={form.limiteBasico}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          limiteBasico: parseFloat(e.target.value),
-                        })
-                      }
-                      required
-                      className="w-full border p-2 rounded-lg focus:outline-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Descripción
-                    </label>
-                    <textarea
-                      value={form.descripcion}
-                      onChange={(e) =>
-                        setForm({ ...form, descripcion: e.target.value })
-                      }
-                      rows={2}
-                      className="w-full border p-2 rounded-lg focus:outline-blue-500"
-                    />
-                  </div>
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title={'Eliminar Categoría'}
+        message="¿Deseas eliminar esta categoría?"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
 
-                  <div className="flex justify-end gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center gap-2"
-                    >
-                      <X size={16} /> Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                    >
-                      <Save size={16} /> {editing ? 'Actualizar' : 'Guardar'}
-                    </button>
-                  </div>
-                </form>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition>
+      <CategoriaModal
+        isOpen={isOpen}
+        onClose={closeModal}
+        initialData={editing}
+        onSaved={fetchCategorias}
+      />
     </div>
   )
 }
