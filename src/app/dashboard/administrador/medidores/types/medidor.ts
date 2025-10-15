@@ -23,6 +23,7 @@ export interface FiltrosMedidor {
 }
 
 export interface MedidorFormData {
+  idMedidor?: number
   idUsuario: number
   idCategoria: number
   direccion: string

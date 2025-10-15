@@ -7,8 +7,11 @@ import 'leaflet/dist/leaflet.css'
 import ruta from '@/api/axios'
 
 interface UbicacionSelectorProps {
-  lat?: number
-  lng?: number
+  ubicacionActual?: {
+    idMedidor?: number
+    latitud: number
+    longitud: number
+  }
   onSelect?: (lat: number, lng: number) => void
   referencia?: { lat: number; lng: number; nombre?: string }
 }
@@ -19,6 +22,7 @@ interface Medidor {
   direccion: string
   latitud: number
   longitud: number
+  idUbicacion?: number
 }
 
 const markerIcon = new L.Icon({
@@ -39,33 +43,42 @@ const referenciaIcon = new L.Icon({
   iconAnchor: [20, 50],
 })
 
-const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({ lat, lng, onSelect, referencia }) => {
+const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({
+  ubicacionActual,
+  onSelect,
+  referencia,
+}) => {
   const defaultCenter = { lat: -17.40935, lng: -65.983899 }
 
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
-    lat && lng ? { lat, lng } : null
+    ubicacionActual?.latitud && ubicacionActual?.longitud
+      ? { lat: ubicacionActual.latitud, lng: ubicacionActual.longitud }
+      : null
   )
+
   const [medidores, setMedidores] = useState<Medidor[]>([])
 
-  // Cargar medidores con su ubicación
+  // Cargar medidores (excepto el del medidor actual)
   useEffect(() => {
     const fetchMedidores = async () => {
       try {
-        const { data } = await ruta.get('/mapa/ubicaciones')
+        const { data } = await ruta.get(`/mapa/ubicaciones/${ubicacionActual?.idMedidor}`)
         setMedidores(data)
       } catch (error) {
         console.error('Error al cargar los medidores:', error)
       }
     }
     fetchMedidores()
-  }, [])
+  }, [ubicacionActual?.idMedidor])
 
-  // Actualizar marcador de selección cuando cambian props lat/lng
+  // Actualizar marcador cuando cambian props
   useEffect(() => {
-    if (lat && lng) setPosition({ lat, lng })
-  }, [lat, lng])
+    if (ubicacionActual?.latitud && ubicacionActual?.longitud) {
+      setPosition({ lat: ubicacionActual.latitud, lng: ubicacionActual.longitud })
+    }
+  }, [ubicacionActual])
 
-  // Manejar clicks en el mapa
+  // Click en mapa para seleccionar ubicación nueva
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
@@ -84,7 +97,10 @@ const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({ lat, lng, onSelec
 
   return (
     <MapContainer
-      center={[position?.lat || defaultCenter.lat, position?.lng || defaultCenter.lng]}
+      center={[
+        position?.lat || referencia?.lat || defaultCenter.lat,
+        position?.lng || referencia?.lng || defaultCenter.lng,
+      ]}
       zoom={15}
       className="w-full h-full min-h-[300px] rounded-lg z-0"
     >
@@ -100,22 +116,18 @@ const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({ lat, lng, onSelec
         </Marker>
       )}
 
-      {/* Marcadores de todos los medidores */}
-      {medidores.map(m =>
-        <Marker
-          key={m.idMedidor}
-          position={[m.latitud, m.longitud]}
-          icon={socioIcon}
-        >
+      {/* Marcadores de otros medidores */}
+      {medidores.map((m) => (
+        <Marker key={m.idMedidor} position={[m.latitud, m.longitud]} icon={socioIcon}>
           <Popup>
             <p className="font-semibold">Medidor #{m.idMedidor}</p>
             <p>Socio: {m.nombreSocio}</p>
             <p>Dirección: {m.direccion}</p>
           </Popup>
         </Marker>
-      )}
+      ))}
 
-      {/* Marcador de selección */}
+      {/* Marcador del medidor actual o seleccionado */}
       <LocationMarker />
     </MapContainer>
   )

@@ -124,7 +124,7 @@ export default function TablaMedidor({
                   {/* Fecha Registro */}
                   <div className="col-span-2">
                     <p className="font-semibold text-gray-900">
-                      {medidor.fechaRegistro}
+                      {new Date(medidor.fechaRegistro).toLocaleDateString()}
                     </p>
                   </div>
 

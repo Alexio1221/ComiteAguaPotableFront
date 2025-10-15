@@ -44,7 +44,7 @@ export default function ModalUsuario({
     categorias
 }: ModalMedidorProps) {
     const [formData, setFormData] = useState<MedidorFormData>(initialFormData)
-    
+
     const [step, setStep] = useState(1)
     const [showMap, setShowMap] = useState(false);
     const [errors, setErrors] = useState<Partial<MedidorFormData>>({})
@@ -67,6 +67,7 @@ export default function ModalUsuario({
             setFormData({
                 idUsuario: medidor.idUsuario ?? 0,
                 idCategoria: medidor.idCategoria ?? 0,
+                idMedidor: medidor.idMedidor ?? 0,
                 direccion: medidor.direccion,
                 ubicacion: medidor.ubicacion || { latitud: 0, longitud: 0, descripcion: '' },
                 estado: medidor.estado,
@@ -295,6 +296,11 @@ export default function ModalUsuario({
                                         <div className="border rounded-lg overflow-auto h-80">
                                             <UbicacionSelector
                                                 referencia={{ lat: -17.405066347785226, lng: -65.98441004854527, nombre: 'Oficina Principal' }}
+                                                ubicacionActual={{
+                                                    idMedidor: formData.idMedidor,
+                                                    latitud: formData.ubicacion.latitud,
+                                                    longitud: formData.ubicacion.longitud
+                                                }}
                                                 onSelect={(lat: number, lng: number) =>
                                                     setFormData({
                                                         ...formData,

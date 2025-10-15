@@ -35,7 +35,6 @@ export default function MedidoresPage() {
                     ruta.get('/servicios/categorias'),   
                 ])
 
-                // Guardar en estado
                 setMedidores(medidoresRes.data)
                 setSocios(sociosRes.data.usuarios); 
                 setCategorias(categoriasRes.data)
@@ -112,7 +111,7 @@ export default function MedidoresPage() {
                         u.idMedidor === medidorEditando.idMedidor ? response.data : u
                     )
                 );
-                toast.success('Medidor actualizado correctamente ✅', {
+                toast.success('Medidor actualizado correctamente', {
                     duration: 4000, // 4 segundos
                     style: {
                         background: '#24A3E3',
@@ -123,7 +122,6 @@ export default function MedidoresPage() {
                 //alert("Usuario actualizado correctamente");
             } else {
                 const response = await ruta.post("/mapa/medidores", data);
-                console.log(response.data)
                 setMedidores((prev) => [...prev, response.data]);
                 toast.success('Medidor creado correctamente ')
 
