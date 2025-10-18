@@ -9,19 +9,20 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [rol, setRol] = useState("Socio");
+  const [rol, setRol] = useState("Socio")
+  const [visible, setVisible] = useState(false)
 
   return (
     <div className="h-screen w-full flex bg-gray-50 text-gray-900">
-      {/* Sidebar */}
-      <Sidebar rol={rol} />
 
-      {/* Main Content */}
+      <Sidebar rol={rol} visible={visible} onClose={() => setVisible(false)} />
+
+      {/* Contenido principal */}
       <div className="flex flex-col flex-1">
         {/* Header */}
-        <Header rol={rol} setRol={setRol} />
+        <Header rol={rol} setRol={setRol} visible={visible} setVisible={setVisible} />
 
-        {/* Page Content */}
+        {/* Página */}
         <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>

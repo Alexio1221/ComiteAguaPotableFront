@@ -276,7 +276,7 @@ export default function MapaDelimitado() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <MapContainer
         center={[-17.408, -65.985]}
         zoom={15}
