@@ -130,7 +130,7 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
                         type="date"
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={new Date().toLocaleDateString('en-CA')}
                         className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                 </div>

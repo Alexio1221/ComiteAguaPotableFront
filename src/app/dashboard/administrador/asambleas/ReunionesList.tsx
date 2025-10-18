@@ -110,7 +110,8 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
                   {new Date(r.fecha).toLocaleDateString('es-BO', { 
                     day: '2-digit', 
                     month: 'short', 
-                    year: 'numeric' 
+                    year: 'numeric',
+                    timeZone: 'UTC' 
                   })}
                 </p>
               </div>
