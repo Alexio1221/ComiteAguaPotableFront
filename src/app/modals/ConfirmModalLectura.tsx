@@ -3,6 +3,7 @@
 import { Dialog, Transition, DialogPanel, TransitionChild, DialogTitle } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Droplet, CheckCircle, X } from 'lucide-react'
+import { useState } from 'react'
 
 interface PreviewLecturaModalProps {
     isOpen: boolean
@@ -22,6 +23,17 @@ interface PreviewLecturaModalProps {
 }
 
 export default function ConfirmModalLectura({ isOpen, onConfirm, onCancel, datos }: PreviewLecturaModalProps) {
+    const [guardando, setGuardando] = useState(false);
+    const handleConfirm = async () => {
+        try {
+            setGuardando(true);
+            await onConfirm();
+        } finally {
+            setGuardando(false);
+        }
+    };
+
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-[100]" onClose={onCancel}>
@@ -99,11 +111,16 @@ export default function ConfirmModalLectura({ isOpen, onConfirm, onCancel, datos
                                     Cancelar
                                 </button>
                                 <button
-                                    onClick={onConfirm}
-                                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-blue-800 to-blue-400 text-white hover:from-blue-700 hover:to-indigo-700 active:scale-95 transition font-semibold flex items-center justify-center gap-2"
+                                    onClick={handleConfirm}
+                                    disabled={guardando}
+                                    className={`w-full sm:w-auto px-4 py-2 rounded-xl 
+                                    ${guardando
+                                            ? 'bg-blue-400 cursor-not-allowed'
+                                            : 'bg-gradient-to-r from-blue-800 to-blue-400 hover:from-blue-700 hover:to-indigo-700'
+                                        }      text-white active:scale-95 transition font-semibold flex items-center justify-center gap-2`}
                                 >
                                     <CheckCircle size={16} />
-                                    Confirmar y Guardar
+                                    {guardando ? 'Guardando...' : 'Confirmar y Guardar'}
                                 </button>
                             </div>
                         </DialogPanel>

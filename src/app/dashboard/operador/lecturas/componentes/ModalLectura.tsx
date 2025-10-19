@@ -85,6 +85,7 @@ export default function LecturaModal({ medidor, cerrarModal }: LecturaModalProps
             <p><strong>Categoría:</strong> {medidor.categoria}</p>
             <p><strong>Lectura anterior:</strong> {medidor.lecturaAnterior} m³</p>
             <p><strong>Lectura actual:</strong> {medidor.lecturaActual} m³</p>
+            <p><strong>Consumo:</strong> {medidor.consumo} m³</p>
           </div>
 
           <input
@@ -106,9 +107,9 @@ export default function LecturaModal({ medidor, cerrarModal }: LecturaModalProps
           <button
             onClick={abrirConfirmacion}
             disabled={guardando}
-            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition font-semibold"
+            className="bg-gradient-to-r from-blue-800 to-blue-400 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition font-semibold"
           >
-            {guardando ? 'Guardando...' : 'Previsualizar'}
+            {guardando ? 'Guardando...' : 'Registrar Lectura'}
           </button>
         </div>
       </div>
