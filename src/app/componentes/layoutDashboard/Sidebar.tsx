@@ -53,7 +53,7 @@ export default function Sidebar({ rol, visible, onClose }: SidebarProps) {
         <>
           {/* Fondo semitransparente (solo visible en móviles) */}
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-40 z-[99] md:hidden"
+            className="fixed inset-0 bg-black bg-opacity-40 z-50 md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
