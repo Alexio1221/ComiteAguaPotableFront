@@ -1,45 +1,72 @@
 'use client'
 
-import React from 'react';
-import { Comprobante } from '../datos/comprobantes';
-import ComprobanteItem from './ComprobanteCard';
+import React, { useState } from 'react'
+import { DndContext, DragOverlay } from '@dnd-kit/core'
+import { Comprobante } from '../datos/comprobantes'
+import ComprobanteItem from './ComprobanteCard'
+import CuadroPago from './CuadroPago'
 
 export default function ComprobantesPendientes({
-  comprobantes,
-  onAddToPayment
+  comprobantes
 }: {
-  comprobantes: Comprobante[];
-  onAddToPayment: (comprobante: Comprobante) => void;
+  comprobantes: Comprobante[]
 }) {
+  const [comprobantesSeleccionados, setComprobantesSeleccionados] = useState<Comprobante[]>([])
+  const [activeComprobante, setActiveComprobante] = useState<Comprobante | null>(null)
+
+  const handleAddToPayment = (comprobante: Comprobante) => {
+    setComprobantesSeleccionados(prev => [...prev, comprobante])
+  }
+
+  const handleRemoveComprobante = (id: number) => {
+    setComprobantesSeleccionados(prev => prev.filter(c => c.idComprobante !== id))
+  }
+
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-blue-100">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <span>📋</span>
-          <span>Comprobantes Pendientes</span>
-        </h2>
-        <span className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm px-4 py-2 rounded-full font-bold shadow-md">
-          {comprobantes.length} disponibles
-        </span>
-      </div>
+    <DndContext
+      onDragStart={(event) => {
+        const id = event.active.id
+        const comp = comprobantes.find(c => `comprobante-${c.idComprobante}` === id)
+        setActiveComprobante(comp || null)
+      }}
+      onDragEnd={() => setActiveComprobante(null)}
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 🧾 Lista de comprobantes */}
+        <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-blue-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            📋 Comprobantes Pendientes
+          </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {comprobantes.map(c => (
-          <ComprobanteItem
-            key={c.idComprobante}
-            comprobante={c}
-            isInPaymentBox={false}
-            onAddToPayment={onAddToPayment}
-          />
-        ))}
-      </div>
-
-      {comprobantes.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">✓</div>
-          <p className="text-gray-600 text-lg">Todos los comprobantes están en el carrito de pago</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {comprobantes.map(c => (
+              <ComprobanteItem
+                key={c.idComprobante}
+                comprobante={c}
+                isInPaymentBox={false}
+                onAddToPayment={handleAddToPayment}
+              />
+            ))}
+          </div>
         </div>
-      )}
-    </div>
-  );
+
+        {/* 💳 Cuadro de pago */}
+        <CuadroPago
+          comprobantesSeleccionados={comprobantesSeleccionados}
+          onRemoveComprobante={handleRemoveComprobante}
+        />
+      </div>
+
+      {/* 🔹 Drag Overlay (por encima de todo) */}
+      <DragOverlay>
+        {activeComprobante ? (
+          <ComprobanteItem
+            comprobante={activeComprobante}
+            isInPaymentBox={false}
+            onAddToPayment={() => {}}
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  )
 }

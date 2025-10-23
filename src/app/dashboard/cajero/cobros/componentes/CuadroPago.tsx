@@ -3,6 +3,7 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Comprobante } from '../datos/comprobantes';
+import { AnimacionMascota } from '@/animaciones/Animaciones';
 
 export default function CuadroPago({
   comprobantesSeleccionados,
@@ -23,10 +24,15 @@ export default function CuadroPago({
       <div
         ref={setNodeRef}
         className={`relative min-h-[500px] rounded-2xl p-6 transition-all duration-300 shadow-xl
-          bg-gradient-to-br from-blue-600 to-cyan-700
+          bg-gradient-to-br from-blue-600 to-cyan-300
           ${isOver ? 'ring-4 ring-yellow-400 scale-105' : 'ring-2 ring-blue-400'}
         `}
       >
+
+        <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
+          <AnimacionMascota className="w-40 h-40 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-80 lg:h-80 opacity-30" />
+        </div>
+
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
             <span className="text-4xl">💳</span>
@@ -41,7 +47,7 @@ export default function CuadroPago({
           {comprobantesSeleccionados.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-white/40 text-6xl mb-4">💧</div>
-              <p className="text-white/60 text-sm">No hay comprobantes<br/>en el carrito</p>
+              <p className="text-white/60 text-sm">No hay comprobantes<br />en el carrito</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
