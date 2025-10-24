@@ -3,7 +3,7 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Comprobante } from '../datos/comprobantes';
-import { AnimacionMascota } from '@/animaciones/Animaciones';
+import { AnimacionMascota, Moneda } from '@/animaciones/Animaciones';
 
 export default function CuadroPago({
   comprobantesSeleccionados,
@@ -34,8 +34,8 @@ export default function CuadroPago({
 
 
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <span className="text-4xl">💳</span>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <Moneda />
           </div>
           <h3 className="text-2xl font-bold text-white mb-1">Carrito de Pago</h3>
           <p className="text-blue-100 text-sm">

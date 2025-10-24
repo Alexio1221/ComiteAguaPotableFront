@@ -5,6 +5,7 @@ import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
 import { Comprobante, comprobantes as comprobantesData } from './datos/comprobantes'
 import ComprobanteItem from './componentes/ComprobanteCard'
 import CuadroPago from './componentes/CuadroPago'
+import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
 
 export default function Page() {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([])
@@ -56,11 +57,9 @@ export default function Page() {
           {/* Encabezado */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-xl">
-                <span className="text-3xl">💧</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                Sistema de Pagos de Agua
+              <LiquidoCargando className="w-24 h-24 md:w-20 md:h-20" />
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent h-15 sm:h-14">
+                Pagos de Agua de Potable
               </h1>
             </div>
             <p className="text-gray-600 text-lg">
@@ -70,10 +69,11 @@ export default function Page() {
 
           {/* Contenido principal */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 🧾 Lista de comprobantes */}
+            {/* Lista de comprobantes */}
             <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                📋 Comprobantes Pendientes
+                <Recibo className="h-16 w-16" />
+                Comprobantes Pendientes
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -87,14 +87,15 @@ export default function Page() {
                     />
                   ))
                 ) : (
-                  <p className="text-center text-gray-500 col-span-2 py-8">
-                    ✅ No hay comprobantes pendientes
-                  </p>
+                  <div className="text-center text-gray-500 col-span-2 py-8 flex flex-col items-center">
+                    <Correcto className="w-32 h-32 mb-2" />
+                    <p>No hay comprobantes pendientes</p>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* 💳 Cuadro de pago (zona droppable) */}
+            {/* Cuadro de pago (zona droppable) */}
             <CuadroPago
               comprobantesSeleccionados={comprobantesSeleccionados}
               onRemoveComprobante={handleRemoveComprobante}
@@ -103,13 +104,13 @@ export default function Page() {
         </div>
       </div>
 
-      {/* 🔹 Drag Overlay (sombra visual del elemento arrastrado) */}
+      {/* Drag Overlay (sombra visual del elemento arrastrado) */}
       <DragOverlay>
         {activeComprobante ? (
           <ComprobanteItem
             comprobante={activeComprobante}
             isInPaymentBox={false}
-            onAddToPayment={() => {}}
+            onAddToPayment={() => { }}
           />
         ) : null}
       </DragOverlay>
