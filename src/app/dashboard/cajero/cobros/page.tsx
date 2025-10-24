@@ -9,6 +9,7 @@ import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
 import Select from 'react-select';
 import ruta from '@/api/axios';
 import { restringirComponente } from './restriccion/restringirArea';
+import ConfirmModalPago from '@/app/modals/ConfirmModalPago';
 
 export default function Page() {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([])
@@ -17,6 +18,7 @@ export default function Page() {
   const [socios, setSocios] = useState<Socio[]>([])
   const [socioSeleccionado, setSocioSeleccionado] = useState<Socio | null>(null);
   const [listo, setListo] = useState(false)
+  const [modalPagoAbierto, setModalPagoAbierto] = useState(false)
 
   useEffect(() => {
     const fetchSocios = async () => {
@@ -69,6 +71,19 @@ export default function Page() {
       if (comprobante) handleAddToPayment(comprobante)
     }
     setActiveComprobante(null)
+  }
+
+  const confirmarPago = async () => {
+    try {
+      console.log('Pagando comprobantes:', comprobantesSeleccionados)
+      await new Promise(res => setTimeout(res, 1500)) // simula espera
+      alert('Pago realizado correctamente ✅')
+      setComprobantesSeleccionados([]) // vacía el carrito
+    } catch (e) {
+      console.error('Error al procesar pago:', e)
+    } finally {
+      setModalPagoAbierto(false)
+    }
   }
 
   return (
@@ -173,6 +188,13 @@ export default function Page() {
           />
         ) : null}
       </DragOverlay>
+
+      <ConfirmModalPago
+        isOpen={modalPagoAbierto}
+        onCancel={() => setModalPagoAbierto(false)}
+        onConfirm={confirmarPago}
+        comprobantes={comprobantesSeleccionados}
+      />
     </DndContext>
   )
 }

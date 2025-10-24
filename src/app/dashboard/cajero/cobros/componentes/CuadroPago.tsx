@@ -1,9 +1,11 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Comprobante } from '../datos/comprobantes';
 import { AnimacionMascota, Moneda } from '@/animaciones/Animaciones';
+import ConfirmModalPago from '@/app/modals/ConfirmModalPago';
+import ruta from '@/api/axios'
 
 export default function CuadroPago({
   comprobantesSeleccionados,
@@ -13,11 +15,32 @@ export default function CuadroPago({
   onRemoveComprobante: (id: number) => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: "zona-pago" });
+  const [modalAbierto, setModalAbierto] = useState(false)
+  const [pagando, setPagando] = useState(false)
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'BOB' }).format(amount);
 
   const total = comprobantesSeleccionados.reduce((acc, c) => acc + c.totalPagar, 0);
+
+  const confirmarPago = async () => {
+    try {
+      setPagando(true);
+
+      const body = {
+        comprobantes: comprobantesSeleccionados.map(c => c.idComprobante),
+      };
+
+      await ruta.post("/servicios/pagos", body);
+
+      alert("✅ Pago realizado correctamente");
+    } catch (e) {
+      console.error("Error al procesar pago:", e);
+    } finally {
+      setPagando(false);
+      setModalAbierto(false);
+    }
+  };
 
   return (
     <div className="sticky top-6">
@@ -90,13 +113,34 @@ export default function CuadroPago({
               </div>
             </div>
 
-            <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2">
-              <span className="text-xl">✓</span>
-              <span>Proceder al Pago</span>
+            <button
+              onClick={() => setModalAbierto(true)}
+              disabled={pagando}
+              className={`w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2 ${pagando ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
+            >
+              {pagando ? (
+                <>
+                  <span className="animate-spin">⏳</span>
+                  <span>Procesando...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xl">✓</span>
+                  <span>Proceder al Pago</span>
+                </>
+              )}
             </button>
           </div>
         </div>
       )}
+
+      <ConfirmModalPago
+        isOpen={modalAbierto}
+        onCancel={() => setModalAbierto(false)}
+        onConfirm={confirmarPago}
+        comprobantes={comprobantesSeleccionados}
+      />
     </div>
   );
 }
