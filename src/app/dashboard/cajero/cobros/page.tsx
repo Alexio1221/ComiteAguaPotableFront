@@ -2,21 +2,49 @@
 
 import React, { useState, useEffect } from 'react'
 import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
-import { Comprobante, comprobantes as comprobantesData } from './datos/comprobantes'
+import { Comprobante, Socio } from './datos/comprobantes'
 import ComprobanteItem from './componentes/ComprobanteCard'
 import CuadroPago from './componentes/CuadroPago'
 import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
+import Select from 'react-select';
+import ruta from '@/api/axios';
 
 export default function Page() {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([])
   const [comprobantesSeleccionados, setComprobantesSeleccionados] = useState<Comprobante[]>([])
   const [activeComprobante, setActiveComprobante] = useState<Comprobante | null>(null)
+  const [socios, setSocios] = useState<Socio[]>([])
+  const [socioSeleccionado, setSocioSeleccionado] = useState<Socio | null>(null);
   const [listo, setListo] = useState(false)
 
   useEffect(() => {
+    const fetchSocios = async () => {
+      try {
+        const resSocio = await ruta.get("/auth/usuarios");
+        setSocios(resSocio.data.usuarios);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    };
+
+    fetchSocios();
     setListo(true)
-    setComprobantes(comprobantesData)
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    const fetchComprobantes = async () => {
+      if (!socioSeleccionado) return;
+      try {
+        const resSocio = await ruta.get(`/servicios/comprobantes/${socioSeleccionado.idUsuario}`);
+        setComprobantes(resSocio.data.comprobantes);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    };
+
+    fetchComprobantes();
+  }, [socioSeleccionado]);
+
   if (!listo) return null
 
   const handleAddToPayment = (comprobante: Comprobante) => {
@@ -53,18 +81,47 @@ export default function Page() {
       onDragCancel={() => setActiveComprobante(null)}
     >
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 p-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-full mx-auto">
           {/* Encabezado */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <LiquidoCargando className="w-24 h-24 md:w-20 md:h-20" />
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent h-15 sm:h-14">
-                Pagos de Agua de Potable
+              <h1 className="text-3xl md:text-4xl font-bold pb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                Pagos de Agua Potable
               </h1>
             </div>
             <p className="text-gray-600 text-lg">
               Arrastra los comprobantes hacia el carrito de pago para procesarlos.
             </p>
+          </div>
+
+          <div className="w-80 mb-2">
+            <h2 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-200 bg-clip-text text-transparent mb-1">
+              Seleccione un socio:
+            </h2>
+            <Select
+              options={socios.map((s) => ({
+                value: s.idUsuario,
+                label: `${s.idUsuario}.- ${s.nombre} ${s.apellidos}`,
+                socio: s,
+              }))}
+              value={
+                socioSeleccionado
+                  ? {
+                    value: socioSeleccionado.idUsuario,
+                    label: `${socioSeleccionado.idUsuario}.- ${socioSeleccionado.nombre} ${socioSeleccionado.apellidos}`,
+                    socio: socioSeleccionado,
+                  }
+                  : null
+              }
+              onChange={(opcion) => setSocioSeleccionado(opcion?.socio ?? null)}
+              placeholder="Elige un socio"
+              isClearable
+              classNames={{
+                control: () =>
+                  "border border-gray-300 shadow-sm hover:border-blue-400 focus:border-blue-500",
+              }}
+            />
           </div>
 
           {/* Contenido principal */}

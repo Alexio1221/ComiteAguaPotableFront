@@ -58,10 +58,10 @@ export default function CuadroPago({
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-lg">💧</span>
                         <p className="font-bold text-gray-900 text-sm">
-                          {c.lectura?.medidor?.codigoMedidor || `Comp-${c.idComprobante}`}
+                          {c.lectura?.medidor?.idMedidor || `Comp-${c.idComprobante}`}
                         </p>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">{c.lectura?.medidor?.direccion}</p>
+                      <p className="text-xs text-gray-600 mb-2">{c.lectura?.medidor?.ubicacionSocio?.direccion}</p>
                       <p className="text-lg font-bold text-blue-600">{formatCurrency(c.totalPagar)}</p>
                     </div>
                     <button

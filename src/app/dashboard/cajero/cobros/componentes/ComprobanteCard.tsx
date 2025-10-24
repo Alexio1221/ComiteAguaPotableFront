@@ -67,11 +67,11 @@ export default function ComprobanteItem({
             </div>
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-gray-900 text-base sm:text-lg truncate">
-                {comprobante.lectura?.medidor?.codigoMedidor || `Comp-${comprobante.idComprobante}`}
+                { `MED-${comprobante.lectura?.medidor?.idMedidor}` || `Comp-${comprobante.idComprobante}`}
               </h4>
               <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" />
-                <span className="truncate">{comprobante.lectura?.medidor?.direccion || 'Dirección no disponible'}</span>
+                <span className="truncate">{comprobante.lectura?.medidor?.ubicacionSocio?.direccion || 'Dirección no disponible'}</span>
               </p>
             </div>
           </div>
