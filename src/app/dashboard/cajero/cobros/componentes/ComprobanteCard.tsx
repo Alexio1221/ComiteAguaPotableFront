@@ -29,6 +29,7 @@ export default function ComprobanteItem({
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition: isDragging ? 'none' : 'transform 0.2s ease',
     zIndex: isDragging ? 999 : undefined,
+    opacity: isDragging ? 0 : 1
   };
 
   const formatCurrency = (amount: number) =>

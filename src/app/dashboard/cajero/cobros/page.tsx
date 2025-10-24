@@ -8,6 +8,7 @@ import CuadroPago from './componentes/CuadroPago'
 import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
 import Select from 'react-select';
 import ruta from '@/api/axios';
+import { restringirComponente } from './restriccion/restringirArea';
 
 export default function Page() {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([])
@@ -79,11 +80,12 @@ export default function Page() {
       }}
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveComprobante(null)}
+      modifiers={[restringirComponente('contenedor-principal')]}
     >
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 p-6">
         <div className="max-w-full mx-auto">
           {/* Encabezado */}
-          <div className="text-center mb-10">
+          <div className="text-center">
             <div className="inline-flex items-center justify-center gap-3 mb-3">
               <LiquidoCargando className="w-24 h-24 md:w-20 md:h-20" />
               <h1 className="text-3xl md:text-4xl font-bold pb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
@@ -125,7 +127,7 @@ export default function Page() {
           </div>
 
           {/* Contenido principal */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div id='contenedor-principal' className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Lista de comprobantes */}
             <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm rounded-xl shadow-xl p-6 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
