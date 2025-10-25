@@ -86,6 +86,8 @@ export default function Page() {
     }
   }
 
+  const limpiarCarrito = () => setComprobantesSeleccionados([]);
+
   return (
     <DndContext
       onDragStart={(event) => {
@@ -173,6 +175,7 @@ export default function Page() {
             <CuadroPago
               comprobantesSeleccionados={comprobantesSeleccionados}
               onRemoveComprobante={handleRemoveComprobante}
+              onClearCarrito={limpiarCarrito}
             />
           </div>
         </div>

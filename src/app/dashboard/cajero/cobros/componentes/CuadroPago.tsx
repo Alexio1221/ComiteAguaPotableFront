@@ -6,17 +6,22 @@ import { Comprobante } from '../datos/comprobantes';
 import { AnimacionMascota, Moneda } from '@/animaciones/Animaciones';
 import ConfirmModalPago from '@/app/modals/ConfirmModalPago';
 import ruta from '@/api/axios'
+import toast from 'react-hot-toast'
 
 export default function CuadroPago({
   comprobantesSeleccionados,
-  onRemoveComprobante
+  onRemoveComprobante,
+  onClearCarrito
 }: {
   comprobantesSeleccionados: Comprobante[];
   onRemoveComprobante: (id: number) => void;
+  onClearCarrito: () => void;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: "zona-pago" });
-  const [modalAbierto, setModalAbierto] = useState(false)
+  const [modalAbierto, setModalAbierto] = useState(false) //Modal de pago
+  const [mostrarModal, setMostrarModal] = useState(false); //Modal de confirmación para abrir el pdf
   const [pagando, setPagando] = useState(false)
+  const [rutaComprobante, setRutaComprobante] = useState<string | null>(null);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-BO', { style: 'currency', currency: 'BOB' }).format(amount);
@@ -31,15 +36,31 @@ export default function CuadroPago({
         comprobantes: comprobantesSeleccionados.map(c => c.idComprobante),
       };
 
-      await ruta.post("/servicios/pagos", body);
+      const res = await ruta.post("/servicios/pagos", body);
 
-      alert("✅ Pago realizado correctamente");
-    } catch (e) {
-      console.error("Error al procesar pago:", e);
+      toast.success("Pago realizado correctamente", {
+        duration: 4000,
+      });
+      if (res.data?.rutaComprobante) {
+        setRutaComprobante(`${process.env.NEXT_PUBLIC_API_URL_CELULAR}${res.data.rutaComprobante}`);
+        setMostrarModal(true); // muestra el modal de confirmación
+      }
+      onClearCarrito();
+    } catch (e: any) {
+      toast.error(e.response?.data?.mensaje || "Error al procesar pago", {
+        duration: 4000
+      });
     } finally {
       setPagando(false);
       setModalAbierto(false);
     }
+  };
+
+  const abrirPDF = () => {
+    if (rutaComprobante) {
+      window.open(rutaComprobante, "_blank");
+    }
+    setMostrarModal(false);
   };
 
   return (
@@ -141,6 +162,31 @@ export default function CuadroPago({
         onConfirm={confirmarPago}
         comprobantes={comprobantesSeleccionados}
       />
+
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[99999]">
+          <div className="bg-white rounded-xl shadow-2xl w-[90%] md:w-[400px] p-6 relative text-center">
+            <h2 className="text-lg font-semibold mb-4">Pago completado</h2>
+            <p className="text-gray-700 mb-6">
+              ¿Deseas abrir el comprobante PDF ahora?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={abrirPDF}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Sí, abrir
+              </button>
+              <button
+                onClick={() => setMostrarModal(false)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                No, gracias
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
