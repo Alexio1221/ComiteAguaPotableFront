@@ -64,7 +64,7 @@ export default function Page() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500 w-full max-w-3xl mb-6"
+                className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500 w-full max-w-4xl mb-6"
             >
                 <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">Control de Asistencia</h1>
                 <p className="text-center text-gray-600">Fecha actual: {fecha}</p>
@@ -76,7 +76,7 @@ export default function Page() {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="w-full max-w-3xl space-y-6"
+                    className="w-full max-w-4xl space-y-6"
                 >
                     <div className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-2xl shadow-lg p-5">
                         <h2 className="text-xl font-semibold">{reunion.titulo}</h2>

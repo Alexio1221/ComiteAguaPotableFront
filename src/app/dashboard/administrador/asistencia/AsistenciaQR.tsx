@@ -18,10 +18,18 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
   const html5QrcodeRef = useRef<Html5Qrcode | null>(null)
 
   useEffect(() => {
+    const style = document.createElement('style')
+    style.innerHTML = `
+      #${divId} video {
+        transform: scaleX(-1);
+      }
+    `
+    document.head.appendChild(style)
     return () => {
-      if (html5QrcodeRef.current) html5QrcodeRef.current.stop().catch(() => {})
+      document.head.removeChild(style)
+      if (html5QrcodeRef.current) html5QrcodeRef.current.stop().catch(() => { })
     }
-  }, [])
+  }, [divId])
 
   const startScanner = async () => {
     setError(null)
@@ -40,7 +48,10 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
         config,
         async (decodedText) => {
           try {
-            // 🔹 Llamada al backend
+            if ((html5Qr as any).lastScanned === decodedText) return;
+            (html5Qr as any).lastScanned = decodedText;
+
+            //  Llamada al backend
             const { data } = await axios.post('/api/asistencia/registrar', {
               socioId: decodedText,
               fecha,
@@ -53,8 +64,11 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
             const mensaje = err?.response?.data?.mensaje || 'Error al registrar asistencia.'
             toast.error(mensaje, { position: 'top-center' })
           }
+          setTimeout(() => {
+            (html5Qr as any).lastScanned = null
+          }, 5000)
         },
-        () => {}
+        () => { }
       )
     } catch (err: any) {
       const msg = err?.message || 'Error al iniciar la cámara.'
@@ -66,7 +80,7 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
 
   const stopScanner = async () => {
     if (html5QrcodeRef.current) {
-      try { await html5QrcodeRef.current.stop() } catch {}
+      try { await html5QrcodeRef.current.stop() } catch { }
       setScanning(false)
     }
   }
@@ -74,7 +88,7 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
   return (
     <div className="bg-white p-5 rounded-2xl shadow-lg flex flex-col items-center border border-gray-100">
       <h2 className="text-lg font-semibold text-gray-800 mb-3">Escanear Código QR</h2>
-      <div id={divId} className="w-full max-w-[400px]" />
+      <div id={divId} className="w-full max-w-[500px]" />
       <div className="mt-4 flex gap-4">
         {!scanning ? (
           <button
