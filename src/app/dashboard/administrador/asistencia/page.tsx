@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import axios from 'axios'
+import ruta from '@/api/axios'
 import toast from 'react-hot-toast'
 import AsistenciaQR from './AsistenciaQR'
 import TablaAsistencia from './TablaAsistencia'
@@ -46,8 +46,8 @@ export default function Page() {
     const obtenerReunionHoy = async () => {
         try {
             setLoading(true)
-            const { data } = await axios.get('/api/reuniones/hoy')
-            setReunion(data?.reunion || null)
+            const { data } = await ruta.get('/avisos/reuniones/hoy')
+            setReunion(data?.reuniones || null)
         } catch (err) {
             toast.error('Error al obtener la reunión de hoy.')
         } finally {
