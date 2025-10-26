@@ -27,6 +27,8 @@ export default function Page() {
     const [tiempoParaFin, setTiempoParaFin] = useState(0)
     const [enCurso, setEnCurso] = useState(false)
     const [fecha, setFecha] = useState('')
+    const [estado, setEstado] = useState<'PRESENTE' | 'RETRASO' | 'JUSTIFICADO' | 'AUSENTE'>('PRESENTE')
+    const [observacion, setObservacion] = useState('')
     const HORAS = 0.05  //Cuantas horas durara la reunion
     const DURACION_REUNION = HORAS * 60 * 60 * 1000
 
@@ -95,11 +97,16 @@ export default function Page() {
 
             if (nuevoEstado) {
                 estadoRef.current = nuevoEstado;
+
                 try {
                     const { data } = await ruta.put(`/avisos/reuniones/${reunion.idReunion}/estado`, { estado: nuevoEstado });
                     toast.success(data?.mensaje || 'Estado actualizado: ' + nuevoEstado);
+                    if (nuevoEstado === 'EN_PROCESO') {
+                        const { data } = await ruta.post('/avisos/asistencia/generar')
+                        toast.success(data?.mensaje || 'Lista de asistencia generada', { duration: 5000 })
+                    }
                 } catch (error: any) {
-                    toast.error(error.response?.data?.mensaje || 'Error al actualizar estado front');
+                    toast.error(error.response?.data?.mensaje || 'Error al actualizar estado', { duration: 5000 });
                 }
             }
         }, 1000);
@@ -169,10 +176,12 @@ export default function Page() {
                     {/* cámara y tabla solo si está en curso */}
                     {enCurso && cameraAvailable ? (
                         <>
+
                             <AsistenciaQR
                                 meetingId={reunion.idReunion}
                                 onCameraError={() => setCameraAvailable(false)}
-                                onSuccess={() => obtenerReunionHoy()}
+                                estado='PRESENTE'
+                                observacion={''}
                             />
                             <TablaAsistencia reunionId={reunion.idReunion} />
                         </>

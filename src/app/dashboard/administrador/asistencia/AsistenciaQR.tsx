@@ -2,16 +2,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode, Html5QrcodeCameraScanConfig } from 'html5-qrcode'
 import toast from 'react-hot-toast'
-import axios from 'axios'
+import ruta from '@/api/axios'
 
 type Props = {
   meetingId: string
-
-  onSuccess?: (res: any) => void
+  estado: 'PRESENTE' | 'RETRASO' | 'AUSENTE' | 'JUSTIFICADO'
+  observacion?: string
   onCameraError?: (error: string) => void
 }
 
-export default function AsistenciaQR({ meetingId, onSuccess, onCameraError }: Props) {
+export default function AsistenciaQR({ meetingId, estado, observacion, onCameraError }: Props) {
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const divId = `qr-reader-${meetingId}`
@@ -51,17 +51,17 @@ export default function AsistenciaQR({ meetingId, onSuccess, onCameraError }: Pr
             if ((html5Qr as any).lastScanned === decodedText) return;
             (html5Qr as any).lastScanned = decodedText;
 
-            //  Llamada al backend
-            const { data } = await axios.post('/api/asistencia/registrar', {
-              socioId: decodedText,
-              idReunion: meetingId
-            })
+            const { data } = await ruta.post('/avisos/asistencia/registrar', {
+              idUsuario: decodedText,
+              idReunion: meetingId,
+              estado, 
+              observacion: observacion || null,  // en caso de justiicacion
+            });
 
             toast.success(data?.mensaje || 'Registro exitoso', { position: 'top-center' })
-            onSuccess?.(data)
           } catch (err: any) {
             const mensaje = err?.response?.data?.mensaje || 'Error al registrar asistencia.'
-            toast.error(mensaje, { position: 'top-center' })
+            toast.error(mensaje, { duration: 5000 })
           }
           setTimeout(() => {
             (html5Qr as any).lastScanned = null
@@ -70,7 +70,7 @@ export default function AsistenciaQR({ meetingId, onSuccess, onCameraError }: Pr
         () => { }
       )
     } catch (err: any) {
-      const msg = err?.message || 'Error al iniciar la cámara.'
+      const msg = err?.mensaje || 'Error al iniciar la cámara.'
       setError(msg)
       onCameraError?.(msg)
       setScanning(false)
