@@ -7,8 +7,7 @@ import { Calendar, Clock, MapPin, FileText, Trash2, Tag } from 'lucide-react'
 interface Reunion {
   idReunion: number
   tipo: string
-  fecha: string
-  hora: string
+  fechaReunion: string
   lugar: string
   motivo: string
   descripcion: string
@@ -107,11 +106,11 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
                   <span className="text-xs font-semibold text-gray-500 uppercase">Fecha</span>
                 </div>
                 <p className="text-gray-800 font-bold text-sm">
-                  {new Date(r.fecha).toLocaleDateString('es-BO', { 
-                    day: '2-digit', 
-                    month: 'short', 
+                  {new Date(r.fechaReunion).toLocaleDateString('es-BO', {
+                    day: '2-digit',
+                    month: 'short',
                     year: 'numeric',
-                    timeZone: 'UTC' 
+                    timeZone: 'UTC'
                   })}
                 </p>
               </div>
@@ -124,7 +123,13 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
                   </div>
                   <span className="text-xs font-semibold text-gray-500 uppercase">Hora</span>
                 </div>
-                <p className="text-gray-800 font-bold text-sm">{r.hora}</p>
+                <p className="text-gray-800 font-bold text-sm">
+                  {new Date(r.fechaReunion).toLocaleTimeString('es-BO', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                  })}
+                </p>
               </div>
 
               {/* Lugar */}
@@ -143,7 +148,7 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
             {r.descripcion && (
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
                 <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                  Descripción adicional
+                  Descripción de la reunión
                 </p>
                 <p className="text-gray-700 text-sm leading-relaxed">
                   {r.descripcion}

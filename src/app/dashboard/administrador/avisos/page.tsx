@@ -63,9 +63,8 @@ const AvisosAdmin: React.FC = () => {
       setDescripcion('')
       setFechaVigencia('')
       setImagen(null)
-    } catch (error) {
-      console.error('Error al crear el aviso:', error)
-      toast.error('Ocurrió un error al crear el aviso.')
+    } catch (error: any) {
+      toast.error(error.response?.data?.mensaje || 'Ocurrió un error al crear el aviso.')
     }
   }
 
@@ -83,7 +82,7 @@ const AvisosAdmin: React.FC = () => {
     }
   }
 
-  // Formateador de fechas en español
+  // Formateador de fecha para bolivia
   const formatearFecha = (fecha: string) => {
     return new Date(fecha).toLocaleDateString('es-BO', {
       weekday: 'long',
@@ -140,7 +139,7 @@ const AvisosAdmin: React.FC = () => {
                 type="date"
                 value={fechaVigencia}
                 onChange={(e) => setFechaVigencia(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toLocaleDateString('en-CA', { timeZone: 'America/La_Paz' })}
                 className={"mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-"}
               />
             </div>

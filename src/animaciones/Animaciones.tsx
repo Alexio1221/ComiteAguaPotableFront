@@ -8,6 +8,10 @@ import liquidoCargando from "./liquidoCargando.json";
 import recibo from "./recibo.json";
 import correcto from "./correcto.json";
 import moneda from "./moneda.json"
+import perroDurmiendo from "./perroDurmiendo.json"
+import perroEsperando from "./perroEsperando.json"
+import calendario from "./calendario.json"
+import cargando from "./cargando.json"
 
 export const AnimacionAguaBlanca = (props: any) => (
   <Lottie animationData={aguaBlanca} loop={true} {...props} />
@@ -40,4 +44,20 @@ export const Correcto = (props: any) => (
 
 export const Moneda = (props: any) => (
   <Lottie animationData={moneda} loop={true} {...props} />
+);
+
+export const PerroDurmiendo = (props: any) => (
+  <Lottie animationData={perroDurmiendo} loop={true} {...props} />
+);
+
+export const PerroEsperando = (props: any) => (
+  <Lottie animationData={perroEsperando} loop={true} {...props} />
+);
+
+export const Calendario = (props: any) => (
+  <Lottie animationData={calendario} loop={true} {...props} />
+);
+
+export const Cargando = (props: any) => (
+  <Lottie animationData={cargando} loop={true} {...props} />
 );

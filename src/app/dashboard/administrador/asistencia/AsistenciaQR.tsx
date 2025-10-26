@@ -6,12 +6,12 @@ import axios from 'axios'
 
 type Props = {
   meetingId: string
-  fecha: string
+
   onSuccess?: (res: any) => void
   onCameraError?: (error: string) => void
 }
 
-export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraError }: Props) {
+export default function AsistenciaQR({ meetingId, onSuccess, onCameraError }: Props) {
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const divId = `qr-reader-${meetingId}`
@@ -54,7 +54,6 @@ export default function AsistenciaQR({ meetingId, fecha, onSuccess, onCameraErro
             //  Llamada al backend
             const { data } = await axios.post('/api/asistencia/registrar', {
               socioId: decodedText,
-              fecha,
               idReunion: meetingId
             })
 

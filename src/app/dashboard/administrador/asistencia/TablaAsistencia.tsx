@@ -8,7 +8,7 @@ interface Afiliado {
   presente: boolean
 }
 
-export default function TablaAsistencia({ fecha, reunionId }: { fecha: string; reunionId: string }) {
+export default function TablaAsistencia({ reunionId }: { reunionId: string }) {
   const [afiliados, setAfiliados] = useState<Afiliado[]>([])
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function TablaAsistencia({ fecha, reunionId }: { fecha: string; r
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-      <h2 className="text-lg font-bold text-gray-800 mb-3">Lista de asistencia - {fecha}</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-3">Lista de asistencia</h2>
       <table className="min-w-full border border-gray-200 text-sm text-left rounded-xl overflow-hidden">
         <thead className="bg-blue-50">
           <tr>

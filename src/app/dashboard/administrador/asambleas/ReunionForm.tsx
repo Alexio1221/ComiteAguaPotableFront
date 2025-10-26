@@ -60,10 +60,8 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
             formDataAvisos.append('fechaVigencia', fecha)
             if (imagenAviso) formDataAvisos.append('imagen', imagenAviso)
 
-            const [resReunion, resAviso] = await Promise.all([
-                ruta.post('/avisos/reunion', formDataReuniones),
-                ruta.post('/avisos', formDataAvisos),
-            ])
+            const resReunion = await ruta.post('/avisos/reunion', formDataReuniones)
+            await ruta.post('/avisos', formDataAvisos),
 
             onCreated(resReunion.data)
             toast.success('Reunión y aviso creados correctamente.')
