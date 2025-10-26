@@ -29,7 +29,7 @@ export default function Page() {
     const [fecha, setFecha] = useState('')
     const [estado, setEstado] = useState<'PRESENTE' | 'RETRASO' | 'JUSTIFICADO' | 'AUSENTE'>('PRESENTE')
     const [observacion, setObservacion] = useState('')
-    const HORAS = 0.05  //Cuantas horas durara la reunion
+    const HORAS = 2  //Cuantas horas durara la reunion
     const DURACION_REUNION = HORAS * 60 * 60 * 1000
 
     useEffect(() => {
@@ -47,14 +47,19 @@ export default function Page() {
 
     const verificarCamara = async () => {
         try {
-            if (!navigator.mediaDevices?.enumerateDevices)
-                throw new Error('No hay cámara disponible')
+            if (!navigator.mediaDevices?.enumerateDevices) {
+                toast('No hay cámara disponible')
+                setCameraAvailable(false)
+                return
+            }
+
             const devices = await navigator.mediaDevices.enumerateDevices()
             setCameraAvailable(devices.some((d) => d.kind === 'videoinput'))
         } catch {
             setCameraAvailable(false)
         }
     }
+
 
     const obtenerReunionHoy = async () => {
         try {
@@ -114,7 +119,7 @@ export default function Page() {
         return () => clearInterval(interval);
     }, [reunion]);
 
-    const formatTime = (ms: number) => {
+    const formatearTiempo = (ms: number) => {
         const totalSeg = Math.floor(ms / 1000)
         const horas = Math.floor(totalSeg / 3600)
         const minutos = Math.floor((totalSeg % 3600) / 60)
@@ -159,12 +164,12 @@ export default function Page() {
                             <div className="flex items-center gap-3 justify-center">
                                 <Cargando className="w-16 h-16" />
                                 <p className="text-lg font-medium text-gray-700">
-                                    La reunión comenzara en: {formatTime(tiempoParaInicio)}
+                                    La reunión comenzara en: {formatearTiempo(tiempoParaInicio)}
                                 </p>
                             </div>
                         ) : tiempoParaFin > 0 ? (
                             <p className="text-lg font-medium text-green-600">
-                                🟢 En curso — Tiempo restante: {formatTime(tiempoParaFin)}
+                                🟢 En curso — Tiempo restante: {formatearTiempo(tiempoParaFin)}
                             </p>
                         ) : (
                             <p className="text-lg font-medium text-red-500">
@@ -173,17 +178,50 @@ export default function Page() {
                         )}
                     </div>
 
-                    {/* cámara y tabla solo si está en curso */}
-                    {enCurso && cameraAvailable ? (
+                    {enCurso ? (
                         <>
+                            <div className="flex items-center gap-2">
+                                <label className="font-medium">Estado:</label>
+                                <select
+                                    value={estado}
+                                    onChange={(e) => setEstado(e.target.value as 'PRESENTE' | 'RETRASO' | 'JUSTIFICADO')}
+                                    className="border border-gray-300 rounded-lg px-3 py-1"
+                                >
+                                    <option value="PRESENTE">Presente</option>
+                                    <option value="RETRASO">Retraso</option>
+                                    <option value="JUSTIFICADO">Justificado</option>
+                                </select>
+                            </div>
+                            {/*Solo se muestra si el estado es justificado*/}
+                            {estado === 'JUSTIFICADO' && (
+                                <div className="flex flex-col">
+                                    <label className="font-medium">Observación:</label>
+                                    <textarea
+                                        value={observacion}
+                                        onChange={(e) => setObservacion(e.target.value)}
+                                        className="border border-gray-300 rounded-lg p-2"
+                                        placeholder="Ingrese la justificación..."
+                                    />
+                                </div>
+                            )}
 
-                            <AsistenciaQR
-                                meetingId={reunion.idReunion}
-                                onCameraError={() => setCameraAvailable(false)}
-                                estado='PRESENTE'
-                                observacion={''}
+                            {/* Cámara solo si está disponible */}
+                            {cameraAvailable && (
+                                <AsistenciaQR
+                                    meetingId={reunion.idReunion}
+                                    onCameraError={() => setCameraAvailable(false)}
+                                    estado={estado}
+                                    observacion={observacion}
+                                />
+                            )}
+
+                            {/* Tabla siempre que la reunión esté en curso */}
+                            <TablaAsistencia
+                                reunionId={reunion.idReunion}
+                                estado={estado}
+                                observacion={observacion}
+                                setObservacion={setObservacion}
                             />
-                            <TablaAsistencia reunionId={reunion.idReunion} />
                         </>
                     ) : !enCurso && tiempoParaInicio > 0 ? (
                         <div className="text-center text-gray-500 font-medium bg-white rounded-xl p-4 shadow-md">
