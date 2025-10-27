@@ -180,6 +180,17 @@ export default function Page() {
 
                     {enCurso ? (
                         <>
+                            {/* Cámara solo si está disponible */}
+                            {cameraAvailable && (
+                                <AsistenciaQR
+                                    meetingId={reunion.idReunion}
+                                    onCameraError={() => setCameraAvailable(false)}
+                                    estado={estado}
+                                    observacion={observacion}
+                                    setObservacion={setObservacion}
+                                />
+                            )}
+
                             <div className="flex items-center gap-2">
                                 <label className="font-medium">Estado:</label>
                                 <select
@@ -203,17 +214,6 @@ export default function Page() {
                                         placeholder="Ingrese la justificación..."
                                     />
                                 </div>
-                            )}
-
-                            {/* Cámara solo si está disponible */}
-                            {cameraAvailable && (
-                                <AsistenciaQR
-                                    meetingId={reunion.idReunion}
-                                    onCameraError={() => setCameraAvailable(false)}
-                                    estado={estado}
-                                    observacion={observacion}
-                                    setObservacion={setObservacion}
-                                />
                             )}
 
                             {/* Tabla siempre que la reunión esté en curso */}

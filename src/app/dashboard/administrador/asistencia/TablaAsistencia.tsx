@@ -7,6 +7,7 @@ interface Afiliado {
   idUsuario: string
   nombre: string
   apellidos: string
+  estadoAsistencia: string
   presente: boolean
 }
 
@@ -62,7 +63,7 @@ export default function TablaAsistencia({
 
       setAfiliados(prev =>
         prev.map(a =>
-          a.idUsuario === idUsuario ? { ...a, presente: nuevoEstado } : a
+          a.idUsuario === idUsuario ? { ...a, presente: nuevoEstado, estadoAsistencia: estadoAEnviar} : a
         )
       )
 
@@ -113,6 +114,7 @@ export default function TablaAsistencia({
           <tr>
             <th className="px-4 py-2 border text-gray-700 font-semibold">#</th>
             <th className="px-4 py-2 border text-gray-700 font-semibold">Nombre completo</th>
+            <th className="px-4 py-2 border text-gray-700 font-semibold">Estado</th>
             <th className="px-4 py-2 border text-gray-700 font-semibold text-center">Asistencia</th>
           </tr>
         </thead>
@@ -122,6 +124,7 @@ export default function TablaAsistencia({
               <tr key={a.idUsuario} className="hover:bg-gray-50 transition-all">
                 <td className="px-4 py-2 border">{a.idUsuario}</td>
                 <td className="px-4 py-2 border font-medium">{a.nombre} {a.apellidos}</td>
+                <td className="px-4 py-2 border font-medium">{a.estadoAsistencia}</td>
                 <td className="px-4 py-2 border text-center">
                   <input
                     type="checkbox"
@@ -134,7 +137,7 @@ export default function TablaAsistencia({
             ))
           ) : (
             <tr>
-              <td colSpan={3} className="text-center py-4 text-gray-500">
+              <td colSpan={4} className="text-center py-4 text-gray-500">
                 No hay registros aún.
               </td>
             </tr>

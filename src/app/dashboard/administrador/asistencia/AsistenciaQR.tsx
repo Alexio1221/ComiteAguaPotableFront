@@ -65,6 +65,7 @@ export default function AsistenciaQR({ meetingId, estado, observacion, onCameraE
               estado: estadoRef.current,
               observacion: observacionRef.current || null,    // en caso de justiicacion
             });
+            setObservacion('')  //Limpiamos el estado de observacion despues de cada registro
             toast.success(data?.mensaje || 'Registro exitoso' , { duration: 5000 })
           } catch (err: any) {
             const mensaje = err?.response?.data?.mensaje || 'Error al registrar asistencia.'
