@@ -212,6 +212,7 @@ export default function Page() {
                                     onCameraError={() => setCameraAvailable(false)}
                                     estado={estado}
                                     observacion={observacion}
+                                    setObservacion={setObservacion}
                                 />
                             )}
 

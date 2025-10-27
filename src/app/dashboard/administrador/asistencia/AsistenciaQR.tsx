@@ -9,13 +9,21 @@ type Props = {
   estado: 'PRESENTE' | 'RETRASO' | 'AUSENTE' | 'JUSTIFICADO'
   observacion?: string
   onCameraError?: (error: string) => void
+  setObservacion: (value: string) => void
 }
 
-export default function AsistenciaQR({ meetingId, estado, observacion, onCameraError }: Props) {
+export default function AsistenciaQR({ meetingId, estado, observacion, onCameraError, setObservacion }: Props) {
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const divId = `qr-reader-${meetingId}`
   const html5QrcodeRef = useRef<Html5Qrcode | null>(null)
+  const estadoRef = useRef(estado);
+  const observacionRef = useRef(observacion);
+
+  useEffect(() => {
+    estadoRef.current = estado;
+    observacionRef.current = observacion;
+  }, [estado, observacion]);
 
   useEffect(() => {
     const style = document.createElement('style')
@@ -54,11 +62,10 @@ export default function AsistenciaQR({ meetingId, estado, observacion, onCameraE
             const { data } = await ruta.post('/avisos/asistencia/registrar', {
               idUsuario: decodedText,
               idReunion: meetingId,
-              estado, 
-              observacion: observacion || null,  // en caso de justiicacion
+              estado: estadoRef.current,
+              observacion: observacionRef.current || null,    // en caso de justiicacion
             });
-
-            toast.success(data?.mensaje || 'Registro exitoso', { position: 'top-center' })
+            toast.success(data?.mensaje || 'Registro exitoso' , { duration: 5000 })
           } catch (err: any) {
             const mensaje = err?.response?.data?.mensaje || 'Error al registrar asistencia.'
             toast.error(mensaje, { duration: 5000 })
@@ -87,7 +94,7 @@ export default function AsistenciaQR({ meetingId, estado, observacion, onCameraE
   return (
     <div className="bg-white p-5 rounded-2xl shadow-lg flex flex-col items-center border border-gray-100">
       <h2 className="text-lg font-semibold text-gray-800 mb-3">Escanear Código QR</h2>
-      <div id={divId} className="w-full max-w-[500px]" />
+      <div id={divId} className="w-full max-w-[400px]" />
       <div className="mt-4 flex gap-4">
         {!scanning ? (
           <button
