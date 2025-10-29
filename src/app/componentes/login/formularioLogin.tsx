@@ -110,7 +110,7 @@ export function FormularioLogin() {
         ¿Olvidaste tu contraseña?
       </a>
 
-      {/* Modal de recuperación */}
+      {/* Modal de recuperación verificacion de codigo*/}
       <RecuperarPasswordModal
         isOpen={modalRecuperar}
         setIsOpen={setModalRecuperar}

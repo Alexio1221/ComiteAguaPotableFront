@@ -3,6 +3,7 @@
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { X, Lock, Check } from "lucide-react";
+import { toast } from "react-hot-toast";
 import ruta from "@/api/axios";
 
 interface CambiarPasswordModalProps {
@@ -38,7 +39,7 @@ export default function CambiarPasswordModal({ isOpen, setIsOpen, usuario }: Cam
       });
 
       if (res.status === 200) {
-        alert("Contraseña cambiada correctamente.");
+        toast.success("Contraseña cambiada correctamente.");
         setIsOpen(false);
         setNuevaContraseña("");
         setConfirmarContraseña("");
