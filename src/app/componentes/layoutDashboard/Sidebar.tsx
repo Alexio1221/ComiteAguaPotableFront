@@ -6,11 +6,13 @@ import NavLinks from "./NavLinks"
 import ruta from "@/api/axios"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from 'next/navigation'
+import { toast } from "react-hot-toast"
+
 
 interface SidebarProps {
   rol: string
-  visible: boolean 
-  onClose?: () => void 
+  visible: boolean
+  onClose?: () => void
 }
 
 interface Funcion {
@@ -26,17 +28,22 @@ export default function Sidebar({ rol, visible, onClose }: SidebarProps) {
   useEffect(() => {
     const fetchFunciones = async () => {
       try {
-        const response = await ruta.get(`/auth/funciones/${rol}`)
-        setFunciones(response.data.funciones)
+        // Revisar rol en localStorage
+        const rolActual = rol || localStorage.getItem("rolUsuario");
+        if (!rolActual) return; // si sigue vacío, no hacemos nada
+
+        const response = await ruta.get(`/auth/funciones/${rolActual}`);
+        setFunciones(response.data.funciones);
       } catch (error: any) {
+        toast.error(error.response?.data?.mensaje || "Error al obtener funciones");
         if (error.response?.status === 401 || error.response?.status === 400) {
-          router.push('/')
+          router.push('/');
         }
       }
-    }
+    };
 
-    fetchFunciones()
-  }, [rol])
+    fetchFunciones();
+  }, [rol]);
 
   const links = [
     { href: "/dashboard", label: "Inicio", icon: iconMap["Home"] },

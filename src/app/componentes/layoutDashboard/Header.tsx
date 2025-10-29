@@ -27,16 +27,24 @@ export default function Header({ rol, setRol, visible, setVisible }: HeaderProps
   useEffect(() => {
     const fetchFunciones = async () => {
       try {
-        const response = await ruta.get(`/auth/roles-usuario-actual`)
-        setRoles(response.data.roles)
-        setRol(response.data.roles[0].nombreRol)
-      } catch (error) {
-        return
-      }
-    }
+        const response = await ruta.get(`/auth/roles-usuario-actual`);
+        setRoles(response.data.roles);
 
-    fetchFunciones()
-  }, [])
+        // Revisar si hay rol guardado
+        const savedRol = localStorage.getItem("rolUsuario");
+        if (savedRol) {
+          setRol(savedRol);
+        } else {
+          setRol(response.data.roles[0].nombreRol);
+          localStorage.setItem("rolUsuario", response.data.roles[0].nombreRol);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFunciones();
+  }, []);
 
   return (
     <motion.header
@@ -76,8 +84,9 @@ export default function Header({ rol, setRol, visible, setVisible }: HeaderProps
             items={roles.map((r) => ({
               label: r.nombreRol,
               onClick: () => {
-                setRol(r.nombreRol)
-                router.push("/dashboard")
+                setRol(r.nombreRol);
+                localStorage.setItem("rolUsuario", r.nombreRol);
+                router.push("/dashboard");
               },
             }))}
           />

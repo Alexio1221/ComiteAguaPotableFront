@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [rol, setRol] = useState("Socio")
+  const [rol, setRol] = useState('')
   const [visible, setVisible] = useState(false)
 
   return (
