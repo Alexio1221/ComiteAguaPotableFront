@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ruta from "../../../api/axios";
 import RecuperarPasswordModal from "../../modals/verificacionModal";
-import CambiarPasswordModal from "../../modals/cambiarPasswordModal"; // tu nuevo modal
+import CambiarPasswordModal from "../../modals/cambiarPasswordModal"; 
 import { toast } from "react-hot-toast"
 
 export function FormularioLogin() {

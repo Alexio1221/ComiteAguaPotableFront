@@ -10,6 +10,7 @@ import Select from 'react-select';
 import ruta from '@/api/axios';
 import { restringirComponente } from './restriccion/restringirArea';
 import ConfirmModalPago from '@/app/modals/ConfirmModalPago';
+import { toast } from 'react-hot-toast';
 
 export default function Page() {
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([])
@@ -40,8 +41,9 @@ export default function Page() {
       try {
         const resSocio = await ruta.get(`/servicios/comprobantes/${socioSeleccionado.idUsuario}`);
         setComprobantes(resSocio.data.comprobantes);
-      } catch (error) {
-        console.error("Error al obtener datos:", error);
+      } catch (error: any) {
+        setComprobantes([]);
+        toast.success(error.response.data.mensaje);
       }
     };
 
