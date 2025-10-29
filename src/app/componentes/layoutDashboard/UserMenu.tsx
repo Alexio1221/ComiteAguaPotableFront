@@ -10,6 +10,7 @@ export default function UserMenu() {
   const handleLogout = async () => {
     try {
       await ruta.post("/sesion/cerrar-sesion")
+      localStorage.removeItem("rolUsuario");
       router.push("/")
       toast.success("Sesión cerrada correctamente")
     } catch (error: any) {

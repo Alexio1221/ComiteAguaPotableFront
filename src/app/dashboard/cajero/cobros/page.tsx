@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
 import { Comprobante, Socio, colorPalettes } from '../tipos'
-import ComprobanteItem from './componentes/ComprobanteCard'
+import ComprobanteItem from './componentes/ComprobanteItem'
 import CuadroPago from './componentes/CuadroPago'
 import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
 import Select from 'react-select';

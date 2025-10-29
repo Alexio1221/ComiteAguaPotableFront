@@ -9,6 +9,8 @@ import {
   Plus,
   AlertTriangle,
   CircleDollarSign,
+  Clock,
+  Calendar,
 } from 'lucide-react';
 
 export default function ComprobanteItem({
@@ -72,10 +74,24 @@ export default function ComprobanteItem({
               <h4 className="font-bold text-gray-900 text-base sm:text-lg truncate">
                 {`MED-${comprobante.lectura?.medidor?.idMedidor}` || `Comp-${comprobante.idComprobante}`}
               </h4>
-              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" />
-                <span className="truncate">{comprobante.lectura?.medidor?.ubicacionSocio?.direccion || 'Dirección no disponible'}</span>
-              </p>
+              <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 mt-1">
+                {/* Fecha de emisión */}
+                <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
+                  <span>{new Date(comprobante.fechaEmision).toLocaleDateString('es-BO')}</span>
+                </span>
+
+                {/* Fecha límite */}
+                <span
+                  className={`text-xs sm:text-sm px-2 py-0.5 rounded-full flex items-center gap-1 ${new Date(comprobante.fechaLimite) < new Date()
+                      ? 'bg-red-100 text-red-700' // vencido
+                      : 'bg-green-100 text-green-700' // vigente
+                    }`}
+                >
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>{new Date(comprobante.fechaLimite).toLocaleDateString('es-BO')}</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
