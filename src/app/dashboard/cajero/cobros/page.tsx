@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
-import { Comprobante, Socio, colorPalettes } from './datos/comprobantes'
+import { Comprobante, Socio, colorPalettes } from '../tipos'
 import ComprobanteItem from './componentes/ComprobanteCard'
 import CuadroPago from './componentes/CuadroPago'
 import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
@@ -83,7 +83,7 @@ export default function Page() {
 
   const confirmarPago = async () => {
     try {
-      console.log('Pagando comprobantes:', comprobantesSeleccionados)
+      alert('Pagando comprobantes:'+ comprobantesSeleccionados)
       await new Promise(res => setTimeout(res, 1500)) // 
       toast.success('Pago realizado correctamente')
       setComprobantesSeleccionados([]) // vacía el carrito

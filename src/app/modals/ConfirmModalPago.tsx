@@ -3,7 +3,7 @@
 import { Dialog, Transition, DialogPanel, TransitionChild, DialogTitle } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 import { CircleDollarSign, CheckCircle, X } from 'lucide-react'
-import { Comprobante } from '@/app/dashboard/cajero/cobros/datos/comprobantes'
+import { Comprobante } from '@/app/dashboard/cajero/tipos'
 
 interface ConfirmModalPagoProps {
   isOpen: boolean

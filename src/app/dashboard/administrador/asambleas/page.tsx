@@ -12,8 +12,7 @@ import ConfirmModal from '@/app/modals/ConfirmModal'
 interface Reunion {
   idReunion: number
   tipo: string
-  fecha: string
-  hora: string
+  fechaReunion: string
   lugar: string
   motivo: string
   descripcion: string

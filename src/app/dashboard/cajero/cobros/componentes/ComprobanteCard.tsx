@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Comprobante } from '../datos/comprobantes';
+import { Comprobante } from '../../tipos';
 import { useDraggable } from '@dnd-kit/core';
 import {
   Droplet,

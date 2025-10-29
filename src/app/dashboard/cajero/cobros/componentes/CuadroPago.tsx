@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { Comprobante } from '../datos/comprobantes';
+import { Comprobante } from '../../tipos';
 import { AnimacionMascota, Moneda } from '@/animaciones/Animaciones';
 import ConfirmModalPago from '@/app/modals/ConfirmModalPago';
 import ruta from '@/api/axios'
@@ -42,7 +42,7 @@ export default function CuadroPago({
         duration: 4000,
       });
       if (res.data?.rutaComprobante) {
-        setRutaComprobante(`${process.env.NEXT_PUBLIC_API_URL_CELULAR}${res.data.rutaComprobante}`);
+        setRutaComprobante(`${process.env.NEXT_PUBLIC_API_URL}${res.data.rutaComprobante}`);
         setMostrarModal(true); // muestra el modal de confirmación
       }
       onClearCarrito();

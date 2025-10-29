@@ -1,3 +1,4 @@
+//Tipos para cobros
 export enum EstadoPago {
   PENDIENTE = "PENDIENTE",
   PAGADO = "PAGADO",
@@ -48,3 +49,43 @@ export const colorPalettes = [
 ];
 
 
+// Tipo para el historial
+export interface ComprobanteHistorial {
+  idComprobante: number;
+  fechaEmision: string;
+  montoBasico: string;
+  montoAdicional: string;
+  moraAcumulada: string;
+  totalPagar: string;
+  estadoPago: string;
+  fechaLimite: string;
+  lectura: {
+    idLectura: number;
+    lecturaActual: string;
+    lecturaAnterior: string;
+    consumo: string;
+    fechaLectura: string;
+    observaciones?: string | null;
+    medidor: {
+      idMedidor: number;
+      socio: {
+        idUsuario: number;
+        nombre: string;
+        apellidos: string;
+      }
+    }
+  }
+}
+
+export interface PagoHistorial {
+  idPago: number;
+  montoPagado: string;
+  fechaPago: string;
+  comprobanteArchivo?: string | null;
+  cajero: {
+    idUsuario: number;
+    nombre: string;
+    apellidos: string;
+  };
+  comprobantes: ComprobanteHistorial[];
+}
