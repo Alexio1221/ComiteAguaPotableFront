@@ -38,3 +38,13 @@ export interface Socio {
   apellidos: string
 }
 
+export const colorPalettes = [
+  { from: 'from-blue-500', to: 'to-blue-700' },
+  { from: 'from-sky-500', to: 'to-cyan-600' },
+  { from: 'from-cyan-500', to: 'to-teal-700' },
+  { from: 'from-blue-400', to: 'to-sky-700' },
+  { from: 'from-indigo-500', to: 'to-blue-800' },
+  { from: 'from-sky-400', to: 'to-cyan-700' },
+];
+
+

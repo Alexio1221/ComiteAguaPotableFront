@@ -14,11 +14,13 @@ import {
 export default function ComprobanteItem({
   comprobante,
   isInPaymentBox,
-  onAddToPayment
+  onAddToPayment,
+  color
 }: {
   comprobante: Comprobante;
   isInPaymentBox: boolean;
   onAddToPayment: (comprobante: Comprobante) => void;
+  color: { from: string; to: string };
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `comprobante-${comprobante.idComprobante}`,
@@ -63,12 +65,12 @@ export default function ComprobanteItem({
         {/* Encabezado */}
         <div className="flex justify-between items-start mb-3 sm:mb-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${color.from} ${color.to} rounded-lg sm:rounded-xl flex items-center justify-center shadow-md flex-shrink-0`}>
               <Droplet className="text-white w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-gray-900 text-base sm:text-lg truncate">
-                { `MED-${comprobante.lectura?.medidor?.idMedidor}` || `Comp-${comprobante.idComprobante}`}
+                {`MED-${comprobante.lectura?.medidor?.idMedidor}` || `Comp-${comprobante.idComprobante}`}
               </h4>
               <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" />
@@ -121,7 +123,7 @@ export default function ComprobanteItem({
         {!isInPaymentBox && (
           <button
             onClick={() => onAddToPayment(comprobante)}
-            className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-95 text-sm sm:text-base"
+            className={`w-full bg-gradient-to-r ${color.from} ${color.to} hover:opacity-90 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-95 text-sm sm:text-base`}
           >
             <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Agregar al pago</span>

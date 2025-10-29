@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { DndContext, DragEndEvent, DragOverlay } from '@dnd-kit/core'
-import { Comprobante, Socio } from './datos/comprobantes'
+import { Comprobante, Socio, colorPalettes } from './datos/comprobantes'
 import ComprobanteItem from './componentes/ComprobanteCard'
 import CuadroPago from './componentes/CuadroPago'
 import { LiquidoCargando, Recibo, Correcto } from '@/animaciones/Animaciones'
@@ -50,6 +50,12 @@ export default function Page() {
     fetchComprobantes();
   }, [socioSeleccionado]);
 
+  const userColor = useMemo(() => {
+    if (!socioSeleccionado) return colorPalettes[0];
+    const randomIndex = Math.floor(Math.random() * colorPalettes.length);
+    return colorPalettes[randomIndex];
+  }, [socioSeleccionado?.idUsuario]);
+
   if (!listo) return null
 
   const handleAddToPayment = (comprobante: Comprobante) => {
@@ -78,11 +84,11 @@ export default function Page() {
   const confirmarPago = async () => {
     try {
       console.log('Pagando comprobantes:', comprobantesSeleccionados)
-      await new Promise(res => setTimeout(res, 1500)) // simula espera
-      alert('Pago realizado correctamente ✅')
+      await new Promise(res => setTimeout(res, 1500)) // 
+      toast.success('Pago realizado correctamente')
       setComprobantesSeleccionados([]) // vacía el carrito
-    } catch (e) {
-      console.error('Error al procesar pago:', e)
+    } catch (e: any) {
+      toast.error(e.response.data.mensaje || 'Error al procesar el pago')
     } finally {
       setModalPagoAbierto(false)
     }
@@ -162,6 +168,7 @@ export default function Page() {
                       comprobante={c}
                       isInPaymentBox={false}
                       onAddToPayment={handleAddToPayment}
+                      color={userColor}
                     />
                   ))
                 ) : (
@@ -190,6 +197,7 @@ export default function Page() {
             comprobante={activeComprobante}
             isInPaymentBox={false}
             onAddToPayment={() => { }}
+            color={userColor}
           />
         ) : null}
       </DragOverlay>
