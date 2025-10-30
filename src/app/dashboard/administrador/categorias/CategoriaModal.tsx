@@ -12,6 +12,7 @@ interface Categoria {
   tarifa: number
   tarifaAdicional: number
   limiteBasico: number
+  moraExponencial: boolean
   descripcion: string
 }
 
@@ -28,6 +29,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
     tarifa: 0,
     tarifaAdicional: 0,
     limiteBasico: 0,
+    moraExponencial: false,
     descripcion: '',
   })
   const [loading, setLoading] = useState(false)
@@ -41,6 +43,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
         tarifa: 0,
         tarifaAdicional: 0,
         limiteBasico: 0,
+        moraExponencial: false,
         descripcion: '',
       })
     }
@@ -204,6 +207,20 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
                       m³
                     </span>
                   </div>
+                </div>
+
+                {/* Mora Exponencial */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="moraExponencial" className="text-sm font-medium text-gray-700">
+                    Mora Exponencial
+                  </label>
+                  <input
+                    type="checkbox"
+                    id="moraExponencial"
+                    checked={form.moraExponencial}
+                    onChange={(e) => setForm({ ...form, moraExponencial: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 accent-blue-600"
+                  />
                 </div>
 
                 {/* Descripción */}

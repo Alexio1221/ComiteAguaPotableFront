@@ -14,6 +14,7 @@ interface Categoria {
   tarifa: number
   tarifaAdicional: number
   limiteBasico: number
+  moraExponencial: boolean
   descripcion: string
 }
 
@@ -122,6 +123,7 @@ const CategoriasAdmin: React.FC = () => {
                   <th className="p-4 text-left font-semibold">Tarifa Básica</th>
                   <th className="p-4 text-left font-semibold">Tarifa Adicional</th>
                   <th className="p-4 text-left font-semibold">Límite Básico</th>
+                  <th className='p-4 text-left font-semibold'>Mora Exponencial</th>
                   <th className="p-4 text-left font-semibold">Descripción</th>
                   <th className="p-4 text-center font-semibold">Acciones</th>
                 </tr>
@@ -163,6 +165,14 @@ const CategoriasAdmin: React.FC = () => {
                         </span>
                         <span className="text-xs text-gray-500">m³</span>
                       </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={cat.moraExponencial}
+                        disabled
+                        className="w-5 h-5 rounded border-gray-300 accent-blue-600 cursor-not-allowed"
+                      />
                     </td>
                     <td className="p-4">
                       <span className="text-gray-600 text-sm">{cat.descripcion}</span>
