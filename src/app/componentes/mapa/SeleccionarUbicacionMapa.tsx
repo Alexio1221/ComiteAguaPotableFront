@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, useMapEvents } from "react-leaflet";
+const { BaseLayer } = LayersControl;
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import ruta from '@/api/axios'
@@ -104,33 +105,48 @@ const UbicacionSelector: React.FC<UbicacionSelectorProps> = ({
       zoom={15}
       className="w-full h-full min-h-[300px] rounded-lg z-0"
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      {/* Control de capas */}
+      <LayersControl position="topright">
+        {/* Capa base: OpenStreetMap */}
+        <BaseLayer checked name="Mapa OSM">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        </BaseLayer>
 
-      {/* Oficina de referencia */}
-      {referencia && (
-        <Marker position={[referencia.lat, referencia.lng]} icon={referenciaIcon}>
-          <Popup>{referencia.nombre || 'Oficina central'}</Popup>
-        </Marker>
-      )}
+        {/* Capa base: Satélite */}
+        <BaseLayer name="Satélite (Esri)">
+          <TileLayer
+            attribution="Tiles © Esri"
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          />
+        </BaseLayer>
 
-      {/* Marcadores de otros medidores */}
-      {medidores.map((m) => (
-        <Marker key={m.idMedidor} position={[m.latitud, m.longitud]} icon={socioIcon}>
-          <Popup>
-            <p className="font-semibold">Medidor #{m.idMedidor}</p>
-            <p>Socio: {m.nombreSocio}</p>
-            <p>Dirección: {m.direccion}</p>
-          </Popup>
-        </Marker>
-      ))}
+        {/* Oficina de referencia */}
+        {referencia && (
+          <Marker position={[referencia.lat, referencia.lng]} icon={referenciaIcon}>
+            <Popup>{referencia.nombre || "Oficina central"}</Popup>
+          </Marker>
+        )}
 
-      {/* Marcador del medidor actual o seleccionado */}
-      <LocationMarker />
+        {/* Marcadores de otros medidores */}
+        {medidores.map((m) => (
+          <Marker key={m.idMedidor} position={[m.latitud, m.longitud]} icon={socioIcon}>
+            <Popup>
+              <p className="font-semibold">Medidor #{m.idMedidor}</p>
+              <p>Socio: {m.nombreSocio}</p>
+              <p>Dirección: {m.direccion}</p>
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Marcador actual */}
+        <LocationMarker />
+
+      </LayersControl>
     </MapContainer>
-  )
+  );
 }
 
 export default UbicacionSelector
