@@ -20,7 +20,7 @@
 import axios from 'axios';
 
 const ruta = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL, // ← ahora toma la URL del .env
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
