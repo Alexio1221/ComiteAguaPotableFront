@@ -156,12 +156,11 @@ export default function HistorialPage() {
             <table className="min-w-[800px] w-full text-sm">
               <thead>
                 <tr className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
-                  <th className="px-6 py-4 text-left font-semibold">Fecha</th>
-                  <th className="px-6 py-4 text-left font-semibold">Cajero</th>
-                  <th className="px-6 py-4 text-left font-semibold">Socio</th>
-                  <th className="px-6 py-4 text-left font-semibold">Total</th>
-                  <th className="px-6 py-4 text-left font-semibold">Comprobantes</th>
-                  <th className="px-6 py-4 text-left font-semibold">Acciones</th>
+                  <th className="w-[15%] px-6 py-4 text-left font-semibold">Fecha</th>
+                  <th className="w-[15%] px-6 py-4 text-left font-semibold">Cajero</th>
+                  <th className="w-[15%] px-6 py-4 text-left font-semibold">Socio</th>
+                  <th className="w-[15%] px-6 py-4 text-left font-semibold">Total</th>
+                  <th className="w-[20%] px-6 py-4 font-semibold text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>

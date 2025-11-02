@@ -38,13 +38,8 @@ export default function PagoItem({ pago, rutaComprobante, onVerDetalle, verCompr
       <td className="px-6 py-4 border-b border-gray-100">
         <span className="text-green-600 font-bold">Bs. {total.toFixed(2)}</span>
       </td>
-      <td className="px-6 py-4 border-b border-gray-100">
-        <span className="inline-flex items-center justify-center bg-blue-100 text-blue-700 font-semibold px-3 py-1 rounded-full text-xs">
-          {pago.comprobantes.length} {pago.comprobantes.length === 1 ? 'comprobante' : 'comprobantes'}
-        </span>
-      </td>
-      <td className="px-6 py-4 border-b border-gray-100">
-        <div className="flex flex-wrap items-center gap-2">
+      <td className="px-6 py-4 border-b border-gray-100 text-center align-middle">
+        <div className="flex justify-center items-center gap-2">
           <button
             onClick={() => onVerDetalle(pago)}
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all hover:shadow-lg transform hover:scale-105"
