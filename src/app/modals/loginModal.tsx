@@ -1,23 +1,51 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { XMarkIcon, ExclamationTriangleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon, ExclamationTriangleIcon, UserCircleIcon, ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import { FormularioLogin } from "../componentes/login/formularioLogin";
+import ruta from "@/api/axios";
 
 export default function LoginModal() {
+  const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await ruta.get("/sesion/verificar-sesion");
+        setIsLoggedIn(true);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLogin();
+  }, []);
+
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex px-4 py-2 bg-blue-700 text-white rounded-md font-semibold hover:bg-blue-800 justify-center gap-1"
-      >
-        <UserCircleIcon className="h-6 w-6" />
-        Iniciar sesión
-        
-      </button>
+      {isLoggedIn ? (
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="flex px-4 py-2 bg-emerald-400 text-white rounded-md font-semibold hover:bg-green-800 justify-center gap-1"
+        >
+          <ArrowRightStartOnRectangleIcon className="h-6 w-6" />
+          Ir al panel
+        </button>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex px-4 py-2 bg-blue-700 text-white rounded-md font-semibold hover:bg-blue-800 justify-center gap-1"
+        >
+          <UserCircleIcon className="h-6 w-6" />
+          Iniciar sesión
+        </button>
+      )}
 
       <Transition show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
@@ -62,7 +90,7 @@ export default function LoginModal() {
                       <p className="text-sm">Solo miembros autorizados del comité</p>
                       <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />
                     </div>
-                    
+
                     <FormularioLogin />
                   </div>
 
