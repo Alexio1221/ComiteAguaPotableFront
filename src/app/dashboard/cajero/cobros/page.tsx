@@ -83,7 +83,7 @@ export default function Page() {
 
   const confirmarPago = async () => {
     try {
-      alert('Pagando comprobantes:'+ comprobantesSeleccionados)
+      alert('Pagando comprobantes:' + comprobantesSeleccionados)
       await new Promise(res => setTimeout(res, 1500)) // 
       toast.success('Pago realizado correctamente')
       setComprobantesSeleccionados([]) // vacía el carrito
@@ -160,25 +160,28 @@ export default function Page() {
                 Comprobantes Pendientes
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {comprobantes.length > 0 ? (
-                  comprobantes.map(c => (
-                    <ComprobanteItem
-                      key={c.idComprobante}
-                      comprobante={c}
-                      isInPaymentBox={false}
-                      onAddToPayment={handleAddToPayment}
-                      color={userColor}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500 col-span-2 py-8 flex flex-col items-center">
-                    <Correcto className="w-32 h-32 mb-2" />
-                    <p>No hay comprobantes pendientes</p>
-                  </div>
-                )}
+              <div className="max-h-[500px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {comprobantes.length > 0 ? (
+                    comprobantes.map(c => (
+                      <ComprobanteItem
+                        key={c.idComprobante}
+                        comprobante={c}
+                        isInPaymentBox={false}
+                        onAddToPayment={handleAddToPayment}
+                        color={userColor}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 col-span-2 py-8 flex flex-col items-center">
+                      <Correcto className="w-32 h-32 mb-2" />
+                      <p>No hay comprobantes pendientes</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
 
             {/* Cuadro de pago (zona droppable) */}
             <CuadroPago
@@ -208,6 +211,6 @@ export default function Page() {
         onConfirm={confirmarPago}
         comprobantes={comprobantesSeleccionados}
       />
-    </DndContext>
+    </DndContext >
   )
 }

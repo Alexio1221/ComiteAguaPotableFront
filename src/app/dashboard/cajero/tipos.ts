@@ -46,6 +46,9 @@ export const colorPalettes = [
   { from: 'from-blue-400', to: 'to-sky-700' },
   { from: 'from-indigo-500', to: 'to-blue-800' },
   { from: 'from-sky-400', to: 'to-cyan-700' },
+  { from: 'from-green-400', to: 'to-emerald-700' },
+  { from: 'from-emerald-400', to: 'to-teal-700' },
+  { from: 'from-purple-500', to: 'to-indigo-800' },
 ];
 
 
