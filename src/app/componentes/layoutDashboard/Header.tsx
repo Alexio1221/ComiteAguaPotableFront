@@ -7,6 +7,7 @@ import { ChevronDown, User, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
 import Dropdown from "@/app/componentes/layoutDashboard/componenteDropdown"
 import { useRouter } from "next/navigation"
+import { toast } from "react-hot-toast"
 
 interface HeaderProps {
   rol: string
@@ -39,7 +40,8 @@ export default function Header({ rol, setRol, visible, setVisible }: HeaderProps
           localStorage.setItem("rolUsuario", response.data.roles[0].nombreRol);
         }
       } catch (error) {
-        console.error(error);
+        router.push("/");
+        toast.error("Inicie sesión para continuar");
       }
     };
 

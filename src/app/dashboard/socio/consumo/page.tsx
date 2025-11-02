@@ -1,17 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Droplet, DollarSign, Info, CheckCircle, XCircle, TrendingUp, Calendar } from 'lucide-react'
+import { Droplet, DollarSign, Info, CheckCircle, XCircle, TrendingUp, Calendar, Clock } from 'lucide-react'
+import ruta from '@/api/axios'
+
 
 interface Consumo {
-  id: number
+  idConsumo: number
   mes: string
   consumo: number
   estado: string
 }
 
 interface Medidor {
-  id: number
+  idMedidor: number
   identificador: string
   categoria: string
   tarifaBasica: number
@@ -21,58 +23,21 @@ interface Medidor {
 }
 
 const ConsumoSocio: React.FC = () => {
-  const [mounted, setMounted] = useState(false)
-  const [selectedMedidor, setSelectedMedidor] = useState<number | null>(null)
+  const [medidores, setMedidores] = useState<Medidor[]>([])
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    const fetchConsumos = async () => {
+      try {
+        const { data } = await ruta.get("auth/consumos");
 
-  // Ejemplo de socio con varios medidores
-  const medidores: Medidor[] = [
-    {
-      id: 1,
-      identificador: 'Medidor #1 - Casa Principal',
-      categoria: 'Doméstico',
-      tarifaBasica: 10,
-      limiteBasico: 12,
-      precioExcedente: 3,
-      consumos: [
-        { id: 1, mes: 'Septiembre 2025', consumo: 15, estado: 'Pagado' },
-        { id: 2, mes: 'Agosto 2025', consumo: 10, estado: 'Pendiente' },
-        { id: 3, mes: 'Julio 2025', consumo: 14, estado: 'Pagado' },
-      ],
-    },
-    {
-      id: 2,
-      identificador: 'Medidor #2 - Lote Secundario',
-      categoria: 'Doméstico',
-      tarifaBasica: 10,
-      limiteBasico: 12,
-      precioExcedente: 3,
-      consumos: [
-        { id: 1, mes: 'Septiembre 2025', consumo: 8, estado: 'Pagado' },
-        { id: 2, mes: 'Agosto 2025', consumo: 20, estado: 'Pagado' },
-        { id: 3, mes: 'Julio 2025', consumo: 11, estado: 'Pagado' },
-      ],
-    },
-    {
-      id: 3,
-      identificador: 'Medidor #3 - Tienda',
-      categoria: 'Comercial',
-      tarifaBasica: 20,
-      limiteBasico: 15,
-      precioExcedente: 5,
-      consumos: [
-        { id: 1, mes: 'Septiembre 2025', consumo: 18, estado: 'Pagado' },
-        { id: 2, mes: 'Agosto 2025', consumo: 12, estado: 'Pendiente' },
-        { id: 3, mes: 'Julio 2025', consumo: 22, estado: 'Pagado' },
-        { id: 4, mes: 'Mayo 2025', consumo: 18, estado: 'Pagado' },
-        { id: 5, mes: 'Abril 2025', consumo: 12, estado: '¨Pagado' },
-        { id: 6, mes: 'Marzo 2025', consumo: 22, estado: 'Pagado' },
-      ],
-    },
-  ]
+        setMedidores(data);
+      } catch (error) {
+        console.error("Error al obtener consumos:", error);
+      }
+    };
+
+    fetchConsumos();
+  }, []);
 
   // Calculo del monto según reglas
   const calcularMonto = (consumo: number, medidor: Medidor) => {
@@ -85,8 +50,9 @@ const ConsumoSocio: React.FC = () => {
   const calcularTotales = (medidor: Medidor) => {
     const totalConsumo = medidor.consumos.reduce((sum, c) => sum + c.consumo, 0)
     const totalMonto = medidor.consumos.reduce((sum, c) => sum + calcularMonto(c.consumo, medidor), 0)
-    const pendientes = medidor.consumos.filter(c => c.estado === 'Pendiente').length
-    return { totalConsumo, totalMonto, pendientes }
+    const pendientes = medidor.consumos.filter(c => c.estado === 'PENDIENTE' || c.estado === 'VENCIDO').length
+    const totalPagar = medidor.consumos.filter((c) => c.estado === "PENDIENTE" || c.estado === "VENCIDO").reduce((sum, c) => sum + calcularMonto(c.consumo, medidor), 0);
+    return { totalConsumo, totalMonto, pendientes, totalPagar }
   }
 
   // Calcular promedio
@@ -95,13 +61,11 @@ const ConsumoSocio: React.FC = () => {
     return (total / medidor.consumos.length).toFixed(1)
   }
 
-  if (!mounted) return null
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div 
+        <div
           className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-xl p-6 text-white"
           style={{ animation: 'slideDown 0.6s ease-out' }}
         >
@@ -124,7 +88,7 @@ const ConsumoSocio: React.FC = () => {
 
         {/* Resumen general */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div 
+          <div
             className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300"
             style={{ animation: 'fadeInUp 0.6s ease-out 0.1s both' }}
           >
@@ -135,13 +99,13 @@ const ConsumoSocio: React.FC = () => {
               <div>
                 <p className="text-gray-500 text-sm">Consumo Total</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  {medidores.reduce((sum, m) => sum + calcularTotales(m).totalConsumo, 0)} m³
+                  {medidores.reduce((sum, m) => sum + calcularTotales(m).totalConsumo, 0).toFixed(3)} m³
                 </p>
               </div>
             </div>
           </div>
 
-          <div 
+          <div
             className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-green-500 hover:shadow-xl transition-all duration-300"
             style={{ animation: 'fadeInUp 0.6s ease-out 0.2s both' }}
           >
@@ -152,13 +116,13 @@ const ConsumoSocio: React.FC = () => {
               <div>
                 <p className="text-gray-500 text-sm">Total a Pagar</p>
                 <p className="text-2xl font-bold text-gray-800">
-                  30 Bs
+                  {medidores.reduce((sum, m) => sum + calcularTotales(m).totalPagar, 0).toFixed(2)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div 
+          <div
             className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-orange-500 hover:shadow-xl transition-all duration-300"
             style={{ animation: 'fadeInUp 0.6s ease-out 0.3s both' }}
           >
@@ -177,29 +141,27 @@ const ConsumoSocio: React.FC = () => {
         </div>
 
         {/* Grid de medidores - adaptativo según cantidad */}
-        <div className={`grid gap-6 ${
-          medidores.length === 1 
-            ? 'grid-cols-1' 
-            : medidores.length === 2 
-            ? 'grid-cols-1 md:grid-cols-2' 
+        <div className={`grid gap-6 ${medidores.length === 1
+          ? 'grid-cols-1'
+          : medidores.length === 2
+            ? 'grid-cols-1 md:grid-cols-2'
             : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-        }`}>
+          }`}>
           {medidores.map((medidor, index) => {
             const totales = calcularTotales(medidor)
             const promedio = calcularPromedio(medidor)
-            
+
             return (
-              <div 
-                key={medidor.id} 
+              <div
+                key={medidor.idMedidor}
                 className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
                 style={{ animation: `fadeInUp 0.6s ease-out ${0.4 + index * 0.1}s both` }}
               >
                 {/* Header del medidor */}
-                <div className={`p-5 ${
-                  medidor.categoria === 'Comercial' 
-                    ? 'bg-gradient-to-r from-purple-500 to-purple-600' 
-                    : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-                } text-white`}>
+                <div className={`p-5 ${medidor.categoria === 'Comercial'
+                  ? 'bg-gradient-to-r from-purple-500 to-purple-600'
+                  : 'bg-gradient-to-r from-blue-500 to-cyan-500'
+                  } text-white`}>
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="text-lg font-bold">{medidor.identificador}</h3>
@@ -209,12 +171,12 @@ const ConsumoSocio: React.FC = () => {
                     </div>
                     <Droplet className="w-8 h-8 opacity-80" />
                   </div>
-                  
+
                   {/* Mini estadísticas */}
                   <div className="grid grid-cols-2 gap-2 mt-4">
                     <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2">
                       <p className="text-xs opacity-80">Consumo Total</p>
-                      <p className="text-lg font-bold">{totales.totalConsumo} m³</p>
+                      <p className="text-lg font-bold">{totales.totalConsumo.toFixed(3)} m³</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2">
                       <p className="text-xs opacity-80">Promedio</p>
@@ -255,17 +217,17 @@ const ConsumoSocio: React.FC = () => {
                       {medidor.consumos.map((item) => {
                         const monto = calcularMonto(item.consumo, medidor)
                         const excedente = item.consumo > medidor.limiteBasico
-                        
+
                         return (
-                          <div 
-                            key={item.id} 
+                          <div
+                            key={item.idConsumo}
                             className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-all duration-300 hover:shadow-md"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <p className="font-semibold text-gray-800">{item.mes}</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                  <span className="text-sm text-gray-600">{item.consumo} m³</span>
+                                  <span className="text-sm text-gray-600">{item.consumo.toFixed(3)} m³</span>
                                   {excedente && (
                                     <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
                                       Excedente
@@ -274,14 +236,18 @@ const ConsumoSocio: React.FC = () => {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold text-gray-800">{monto} Bs</p>
-                                {item.estado === 'Pagado' ? (
+                                <p className="text-lg font-bold text-gray-800">{monto.toFixed(2)} Bs</p>
+                                {item.estado === 'PAGADO' ? (
                                   <span className="inline-flex items-center gap-1 text-xs text-green-600 font-semibold">
-                                    <CheckCircle size={12}/> {item.estado}
+                                    <CheckCircle size={12} /> {item.estado}
+                                  </span>
+                                ) : item.estado === 'PENDIENTE' ? (
+                                  <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-semibold">
+                                    <Clock size={12} /> {item.estado}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1 text-xs text-red-600 font-semibold">
-                                    <XCircle size={12}/> {item.estado}
+                                    <XCircle size={12} /> {item.estado}
                                   </span>
                                 )}
                               </div>
@@ -296,13 +262,15 @@ const ConsumoSocio: React.FC = () => {
                   <div className="mt-4 pt-4 border-t-2 border-gray-200">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-gray-700">Total del Medidor:</span>
-                      <span className="text-xl font-bold text-blue-600">{totales.totalMonto} Bs</span>
+                      <span className="text-xl font-bold text-blue-600">{totales.totalMonto.toFixed(2)} Bs</span>
                     </div>
-                    {totales.pendientes > 0 && (
-                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                        <XCircle size={12} /> {totales.pendientes} pago(s) pendiente(s)
-                      </p>
+                    {totales.totalPagar > 0 && (
+                      <div className="flex justify-between items-center">
+                      <span className="font-semibold text-gray-700">Deuda del Medidor:</span>
+                      <span className="text-xl font-bold text-red-600">{totales.totalPagar.toFixed(2)} Bs</span>
+                    </div>
                     )}
+                    
                   </div>
                 </div>
               </div>
