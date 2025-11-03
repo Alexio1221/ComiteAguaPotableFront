@@ -18,22 +18,7 @@ export function FormularioLogin() {
   const [modalCambiarPassword, setModalCambiarPassword] = useState(false);
   const [usuarioVerificado, setUsuarioVerificado] = useState<string | null>(null);
 
-  type LoginResponse = {
-    mensaje: string;
-    usuario: {
-      idUsuario: number;
-      usuario: string;
-      nombre: string;
-      apellido: string;
-      roles: {
-        nombreRol: string;
-        funciones: {
-          nombreFuncion: string;
-          icono: string;
-        }[];
-      }[];
-    };
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +26,7 @@ export function FormularioLogin() {
     setLoading(true);
 
     try {
-      const response = await ruta.post<LoginResponse>(
+      const response = await ruta.post(
         "/sesion/login",
         { usuario, contraseña }
       );
