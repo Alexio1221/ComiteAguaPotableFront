@@ -27,7 +27,7 @@ export default function Page() {
         ref={credencialRef}
         nombre="Juan"
         apellidos="Perez"
-        idSocio="SOC-045"
+        idSocio="1"
         direccion="Av. Central N° 123"
       />
 
