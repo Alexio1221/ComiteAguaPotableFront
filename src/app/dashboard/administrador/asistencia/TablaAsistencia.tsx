@@ -84,7 +84,7 @@ export default function TablaAsistencia({
           .toLowerCase()
           .includes(busqueda.toLowerCase())
       )
-      .sort((a, b) => Number(a.idUsuario) - Number(b.idUsuario)) // 👈 siempre ordena por ID
+      .sort((a, b) => Number(a.idUsuario) - Number(b.idUsuario))
   }, [afiliados, busqueda])
 
   return (
