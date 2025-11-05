@@ -4,22 +4,18 @@ import React, { useEffect, useState } from 'react'
 import { Users, Calendar, CheckCircle, XCircle, FileText, MapPin, Clock, AlertCircle, UserRoundCheck } from 'lucide-react'
 import ruta from '@/api/axios'
 
-interface Reunion {
-  tipo: string
+interface Asistencia {
+  idReunion: number
+  estadoAsistencia: string
+  registradoEn: string
+  observacion?: string | null
+  tipoReunion: string
   fechaReunion: string
   lugar: string
   motivo: string
   descripcion?: string
-  estado: string
-  documentoAsamblea?: string | null
-}
-
-interface Asistencia {
-  idReunion: number
-  estado: string
-  registradoEn: string
-  observacion?: string | null
-  reunion: Reunion
+  estadoReunion: string
+  documentoAsamblea: string
 }
 
 const ReunionesSocio: React.FC = () => {
@@ -113,9 +109,9 @@ const ReunionesSocio: React.FC = () => {
   // Estadísticas
   const stats = {
     total: reuniones.length,
-    presentes: reuniones.filter(r => r.estado === 'PRESENTE').length,
-    ausentes: reuniones.filter(r => r.estado === 'AUSENTE').length,
-    justificados: reuniones.filter(r => r.estado === 'JUSTIFICADO').length,
+    presentes: reuniones.filter(r => r.estadoAsistencia === 'PRESENTE').length,
+    ausentes: reuniones.filter(r => r.estadoAsistencia === 'AUSENTE').length,
+    justificados: reuniones.filter(r => r.estadoAsistencia === 'JUSTIFICADO').length,
   }
 
   return (
@@ -163,7 +159,7 @@ const ReunionesSocio: React.FC = () => {
         ) : (
           <div className="grid gap-6">
             {reuniones.map((r) => {
-              const asistenciaConfig = getEstadoAsistenciaConfig(r.estado)
+              const asistenciaConfig = getEstadoAsistenciaConfig(r.estadoAsistencia)
               const IconoAsistencia = asistenciaConfig.icon
 
               return (
@@ -181,10 +177,10 @@ const ReunionesSocio: React.FC = () => {
                           </div>
                           <div className="flex-1">
                             <h3 className="text-xl font-bold text-gray-50 mb-1">
-                              {r.reunion.motivo}
+                              {r.motivo}
                             </h3>
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getEstadoReunionBadge(r.reunion.estado)}`}>
-                              {r.reunion.estado.replace('_', ' ')}
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getEstadoReunionBadge(r.estadoReunion)}`}>
+                              {r.estadoReunion.replace('_', ' ')}
                             </span>
                           </div>
                         </div>
@@ -207,7 +203,7 @@ const ReunionesSocio: React.FC = () => {
                       <div className="space-y-4">
                         <div>
                           <p className="text-sm font-semibold text-gray-500 mb-2">Tipo de Reunión</p>
-                          <p className="text-gray-800 font-medium">{r.reunion.tipo}</p>
+                          <p className="text-gray-800 font-medium">{r.tipoReunion}</p>
                         </div>
 
                         <div className="flex items-start gap-3">
@@ -215,9 +211,9 @@ const ReunionesSocio: React.FC = () => {
                           <div>
                             <p className="text-sm font-semibold text-gray-500">Fecha y Hora</p>
                             <p className="text-gray-800 font-medium">
-                              {formatFecha(r.reunion.fechaReunion)}
+                              {formatFecha(r.fechaReunion)}
                             </p>
-                            <p className="text-gray-600 text-sm">{formatHora(r.reunion.fechaReunion)}</p>
+                            <p className="text-gray-600 text-sm">{formatHora(r.fechaReunion)}</p>
                           </div>
                         </div>
 
@@ -225,7 +221,7 @@ const ReunionesSocio: React.FC = () => {
                           <MapPin className="w-5 h-5 text-red-500 mt-1 flex-shrink-0" />
                           <div>
                             <p className="text-sm font-semibold text-gray-500">Lugar</p>
-                            <p className="text-gray-800 font-medium">{r.reunion.lugar}</p>
+                            <p className="text-gray-800 font-medium">{r.lugar}</p>
                           </div>
                         </div>
 
@@ -244,11 +240,11 @@ const ReunionesSocio: React.FC = () => {
 
                       {/* Descripción y documentos */}
                       <div className="space-y-4">
-                        {r.reunion.descripcion && (
+                        {r.descripcion && (
                           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                             <p className="text-sm font-semibold text-gray-500 mb-2">Descripción</p>
                             <p className="text-gray-700 text-sm leading-relaxed">
-                              {r.reunion.descripcion}
+                              {r.descripcion}
                             </p>
                           </div>
                         )}
@@ -262,22 +258,20 @@ const ReunionesSocio: React.FC = () => {
                           </div>
                         )}
 
-                        {r.reunion.documentoAsamblea && (
-                          <a
-                            href={`/docs/${r.reunion.documentoAsamblea}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 rounded-xl p-4 border border-blue-200 transition-colors group"
-                          >
-                            <div className="bg-blue-100 group-hover:bg-blue-200 p-2 rounded-lg transition-colors">
-                              <FileText className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-blue-900">Ver Acta de Reunión</p>
-                              <p className="text-xs text-blue-600">{r.reunion.documentoAsamblea}</p>
-                            </div>
-                          </a>
-                        )}
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_API_URL}${r.documentoAsamblea}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 rounded-xl p-4 border border-blue-200 transition-colors group"
+                        >
+                          <div className="bg-blue-100 group-hover:bg-blue-200 p-2 rounded-lg transition-colors">
+                            <FileText className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-blue-900">Ver Acta de Reunión</p>
+                            <p className="text-xs text-blue-600">{r.documentoAsamblea}</p>
+                          </div>
+                        </a>
                       </div>
                     </div>
                   </div>

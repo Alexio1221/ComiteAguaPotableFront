@@ -53,6 +53,8 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
             formDataReuniones.append('lugar', lugar)
             formDataReuniones.append('motivo', motivo)
             formDataReuniones.append('descripcion', descripcion)
+            console.log("Hay documento", documento)
+            console.log("Hay imagen", imagenAviso)
             if (documento) formDataReuniones.append('documentoAsamblea', documento)
 
             const formDataAvisos = new FormData()
@@ -176,11 +178,12 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        <Upload className="inline mr-1" size={16} /> Documento (opcional)
+                        <Upload className="inline mr-1" size={16} /> Documento (obligatorio)
                     </label>
                     <div className="relative">
                         <input
                             type="file"
+                            accept="application/pdf"
                             onChange={(e) => setDocumento(e.target.files?.[0] || null)}
                             className="w-full border-2 border-dashed border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-400 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-100 file:text-blue-700 file:font-semibold hover:file:bg-blue-200"
                         />
