@@ -104,8 +104,7 @@ export default function Page() {
                 estadoRef.current = nuevoEstado;
 
                 try {
-                    const { data } = await ruta.put(`/avisos/reuniones/${reunion.idReunion}/estado`, { estado: nuevoEstado });
-                    toast.success(data?.mensaje || 'Estado actualizado: ' + nuevoEstado);
+                    await ruta.put(`/avisos/reuniones/${reunion.idReunion}/estado`, { estado: nuevoEstado });
                     if (nuevoEstado === 'EN_PROCESO') {
                         const { data } = await ruta.post('/avisos/asistencia/generar')
                         toast.success(data?.mensaje || 'Lista de asistencia generada', { duration: 5000 })

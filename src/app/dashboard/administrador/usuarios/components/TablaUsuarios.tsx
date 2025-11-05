@@ -4,6 +4,9 @@ import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Edit2, Eye, Shield, Phone, IdCard } from "lucide-react"
 import { Usuario } from "../types/usuario"
+import { useState } from "react"
+import PerfilUsuarioModal from "@/app/modals/perfilModal"
+import toast from "react-hot-toast"
 
 interface TablaUsuariosProps {
   usuarios: Usuario[]
@@ -33,7 +36,8 @@ export default function TablaUsuarios({
       </Card>
     )
   }
-
+  const [idSocio, setIdSocio] = useState(0)
+  const [abrirModal, setPerfilModal] = useState(false)
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -181,7 +185,10 @@ export default function TablaUsuarios({
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => onVerDetalles(usuario)}
+                        onClick={() => {
+                          setPerfilModal(true)
+                          setIdSocio(usuario.idUsuario)
+                        }}
                         className="p-3 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Ver detalles"
                       >
@@ -201,6 +208,13 @@ export default function TablaUsuarios({
                 </div>
               </motion.div>
             ))
+          )}
+          {abrirModal && (
+            <PerfilUsuarioModal
+              idSocio={idSocio}
+              isOpen={abrirModal}
+              onClose={() => setPerfilModal(false)}
+            />
           )}
         </motion.div>
       </CardContent>
