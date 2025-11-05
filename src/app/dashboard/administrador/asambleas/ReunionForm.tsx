@@ -1,26 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
 import { Calendar, Clock, MapPin, FileText, Image, Upload, Save } from 'lucide-react'
 import ruta from '@/api/axios'
+import { Reunion, TipoReunion } from './tipos'
 
 interface Props {
-    onCreated: (reunion: any) => void
+    onCreated: (reunion: Reunion) => void
 }
 
-const tipos = [
-    'Reunión de Directorio',
-    'Asamblea General',
-    'Trabajo',
-    'Reunión Técnica',
-    'Otro',
-]
-
 const ReunionForm: React.FC<Props> = ({ onCreated }) => {
-    const [tipo, setTipo] = useState(tipos[0])
-    const [otroTipo, setOtroTipo] = useState('')
+    const [tipoReunion, setTipoReunion] = useState<TipoReunion[]>([])
+    const [tipoReunionSeleccionado, setTipoReunionSeleccionado] = useState<number | "">("");
     const [fecha, setFecha] = useState('')
     const [hora, setHora] = useState('')
     const [lugar, setLugar] = useState('')
@@ -30,6 +23,20 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
     const [imagenAviso, setImagenAviso] = useState<File | null>(null)
     const [loading, setLoading] = useState(false)
 
+    useEffect(() => {
+        const fetchReuniones = async () => {
+            try {
+                const tipoReunion = await ruta.get('/servicios/tarifas-reunion')
+                setTipoReunion(tipoReunion.data)
+            } catch {
+                toast.error('No se pudieron cargar las reuniones.')
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchReuniones()
+    }, [])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!fecha || !hora || !lugar || !motivo || !descripcion) {
@@ -37,16 +44,10 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
             return
         }
 
-        const tipoFinal = tipo === 'Otro' ? otroTipo : tipo
-        if (!tipoFinal) {
-            toast.error('Completa todos los campos obligatorios')
-            return
-        }
-
         setLoading(true)
         try {
             const formDataReuniones = new FormData()
-            formDataReuniones.append('tipo', tipoFinal)
+            formDataReuniones.append('tipoReunion', tipoReunionSeleccionado.toString())
             formDataReuniones.append('fecha', fecha)
             formDataReuniones.append('hora', hora)
             formDataReuniones.append('lugar', lugar)
@@ -63,11 +64,10 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
             const resReunion = await ruta.post('/avisos/reunion', formDataReuniones)
             await ruta.post('/avisos', formDataAvisos),
 
-            onCreated(resReunion.data)
+                onCreated(resReunion.data)
             toast.success('Reunión y aviso creados correctamente.')
 
-            setTipo(tipos[0])
-            setOtroTipo('')
+            setTipoReunionSeleccionado("")
             setFecha('')
             setHora('')
             setLugar('')
@@ -90,33 +90,18 @@ const ReunionForm: React.FC<Props> = ({ onCreated }) => {
                     Tipo de Reunión *
                 </label>
                 <select
-                    value={tipo}
-                    onChange={(e) => setTipo(e.target.value)}
+                    value={tipoReunionSeleccionado}
+                    onChange={(e) => setTipoReunionSeleccionado(Number(e.target.value))}
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white"
                 >
-                    {tipos.map(t => <option key={t} value={t}>{t}</option>)}
+                    <option value="">Seleccionar tipo de reunión</option>
+                    {tipoReunion.map((t) => (
+                        <option key={t.idTarifaReunion} value={t.idTarifaReunion}>
+                            {t.nombreReunion}
+                        </option>
+                    ))}
                 </select>
             </div>
-
-            {/* Campo dinámico para "Otro" */}
-            {tipo === 'Otro' && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                >
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Especifica el tipo *
-                    </label>
-                    <input
-                        type="text"
-                        value={otroTipo}
-                        onChange={(e) => setOtroTipo(e.target.value)}
-                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                        placeholder="Ej: Reunión extraordinaria, capacitación..."
-                    />
-                </motion.div>
-            )}
 
             {/* Grid para Fecha y Hora */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

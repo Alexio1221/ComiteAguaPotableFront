@@ -3,15 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, MapPin, FileText, Trash2, Tag } from 'lucide-react'
-
-interface Reunion {
-  idReunion: number
-  tipo: string
-  fechaReunion: string
-  lugar: string
-  motivo: string
-  descripcion: string
-}
+import { Reunion } from './tipos'
 
 interface Props {
   reuniones: Reunion[]
@@ -21,21 +13,19 @@ interface Props {
 const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
   if (!reuniones.length) return <p>No hay reuniones vigentes.</p>
 
-  const getTipoColor = (tipo: string) => {
-    const tipoLower = tipo.toLowerCase()
-    if (tipoLower.includes('asamblea')) return 'from-purple-500 to-pink-500'
-    if (tipoLower.includes('ordinaria')) return 'from-blue-500 to-cyan-500'
-    if (tipoLower.includes('extraordinaria')) return 'from-orange-500 to-red-500'
-    if (tipoLower.includes('emergencia')) return 'from-red-500 to-rose-600'
+  const getTipoColor = (tipo: number) => {
+    if (tipo === 1) return 'from-purple-500 to-pink-500'
+    if (tipo === 2) return 'from-blue-500 to-cyan-500'
+    if (tipo === 3) return 'from-orange-500 to-red-500'
+    if (tipo === 4) return 'from-red-500 to-rose-600'
     return 'from-teal-500 to-green-500'
   }
 
-  const getTipoBadgeColor = (tipo: string) => {
-    const tipoLower = tipo.toLowerCase()
-    if (tipoLower.includes('asamblea')) return 'bg-purple-100 text-purple-700 border-purple-200'
-    if (tipoLower.includes('ordinaria')) return 'bg-blue-100 text-blue-700 border-blue-200'
-    if (tipoLower.includes('extraordinaria')) return 'bg-orange-100 text-orange-700 border-orange-200'
-    if (tipoLower.includes('emergencia')) return 'bg-red-100 text-red-700 border-red-200'
+  const getTipoBadgeColor = (tipo: number) => {
+    if (tipo === 1) return 'bg-purple-100 text-purple-700 border-purple-200'
+    if (tipo === 2) return 'bg-blue-100 text-blue-700 border-blue-200'
+    if (tipo === 3) return 'bg-orange-100 text-orange-700 border-orange-200'
+    if (tipo === 4) return 'bg-red-100 text-red-700 border-red-200'
     return 'bg-teal-100 text-teal-700 border-teal-200'
   }
 
@@ -50,7 +40,7 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
           className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300"
         >
           {/* Header con gradiente según tipo */}
-          <div className={`bg-gradient-to-r ${getTipoColor(r.tipo)} p-4 sm:p-5`}>
+          <div className={`bg-gradient-to-r ${getTipoColor(r.tipoReunion)} p-4 sm:p-5`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
@@ -58,7 +48,7 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
                 </div>
                 <div>
                   <h4 className="text-lg sm:text-xl font-bold text-white">
-                    {r.tipo}
+                    {r.nombreReunion}
                   </h4>
                   <p className="text-white/90 text-sm hidden sm:block">
                     Convocatoria oficial
@@ -157,9 +147,9 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
 
             {/* Badge de tipo */}
             <div className="flex justify-end">
-              <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getTipoBadgeColor(r.tipo)}`}>
+              <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getTipoBadgeColor(r.tipoReunion)}`}>
                 <Tag size={14} />
-                {r.tipo}
+                {r.tipoReunion}
               </span>
             </div>
           </div>

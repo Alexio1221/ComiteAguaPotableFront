@@ -8,15 +8,7 @@ import ruta from '@/api/axios'
 import ReunionForm from './ReunionForm'
 import ReunionesList from './ReunionesList'
 import ConfirmModal from '@/app/modals/ConfirmModal'
-
-interface Reunion {
-  idReunion: number
-  tipo: string
-  fechaReunion: string
-  lugar: string
-  motivo: string
-  descripcion: string
-}
+import { Reunion } from './tipos'
 
 const ReunionesAdmin: React.FC = () => {
   const [reuniones, setReuniones] = useState<Reunion[]>([])
