@@ -110,7 +110,6 @@ const ReunionesList: React.FC<Props> = ({ reuniones, onDelete }) => {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
-                    timeZone: 'UTC'
                   })}
                 </p>
               </div>
