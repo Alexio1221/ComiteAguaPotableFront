@@ -37,7 +37,10 @@ export default function Page() {
 
   useEffect(() => {
     const fetchComprobantes = async () => {
-      if (!socioSeleccionado) return;
+      if (!socioSeleccionado) {
+        setComprobantes([]);
+        return;
+      }
       try {
         const resSocio = await ruta.get(`/servicios/comprobantes/${socioSeleccionado.idUsuario}`);
         setComprobantes(resSocio.data.comprobantes);
