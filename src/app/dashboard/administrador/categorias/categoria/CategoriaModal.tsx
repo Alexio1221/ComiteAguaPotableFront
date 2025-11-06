@@ -142,7 +142,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
                     <div className="relative">
                       <input
                         type="number"
-                        step="0.01"
+                        step="0.5"
                         min="0"
                         value={form.tarifa}
                         onChange={(e) => {
@@ -166,7 +166,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
                     <div className="relative">
                       <input
                         type="number"
-                        step="0.01"
+                        step="0.5"
                         min="0"
                         value={form.tarifaAdicional}
                         onChange={(e) => {
@@ -192,7 +192,7 @@ const CategoriaModal: React.FC<CategoriaModalProps> = ({ isOpen, onClose, initia
                   <div className="relative">
                     <input
                       type="number"
-                      step="0.01"
+                      step="0.5"
                       min="0"
                       value={form.limiteBasico}
                       onChange={(e) => {
