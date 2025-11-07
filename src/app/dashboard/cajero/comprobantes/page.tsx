@@ -7,6 +7,7 @@ import PagoItem from './PagoItem';
 import PagoDetalleModal from './PagoDetalleModal';
 import { PagoHistorial } from '../tipos';
 import { Search, Calendar, User, DollarSign } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function HistorialPage() {
   const [pagos, setPagos] = useState<PagoHistorial[]>([]);
@@ -61,6 +62,31 @@ export default function HistorialPage() {
     );
   });
 
+  const generarReporte = async () => {
+    try {
+      const res = await ruta.post('servicios/pagos-reporte', {
+        socio: socioFiltro,
+        cajero: cajeroFiltro,
+        mes: mes,
+        anio: anio,
+      }, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'reporte_pagos.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error('No se pudo generar el reporte.');
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -72,10 +98,20 @@ export default function HistorialPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-6 flex justify-between items-center"
         >
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Historial de Pagos</h1>
-          <p className="text-gray-600">Gestiona y consulta todos los pagos registrados</p>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Historial de Pagos</h1>
+            <p className="text-gray-600">Gestiona y consulta todos los pagos registrados</p>
+          </div>
+
+          {/* Botón de descargar reporte */}
+          <button
+            onClick={generarReporte}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow"
+          >
+            Descargar reporte
+          </button>
         </motion.div>
 
         {/* Filtros */}
@@ -89,7 +125,7 @@ export default function HistorialPage() {
             <Search className="w-5 h-5 text-blue-600" />
             <h2 className="text-lg font-semibold text-gray-800">Filtros de búsqueda</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -101,7 +137,7 @@ export default function HistorialPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
-            
+
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -112,7 +148,7 @@ export default function HistorialPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
-            
+
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <select
@@ -128,7 +164,7 @@ export default function HistorialPage() {
                 ))}
               </select>
             </div>
-            
+
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <select
