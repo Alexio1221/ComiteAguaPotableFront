@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import ListaDeFiguras from "./ListaDeFiguras";
 import ruta from "@/api/axios";
+import BarraSuperior from "@/app/componentes/mapa/MenuHerramientas";
 
 // Importa Mapa sin SSR
 const MapaDelimitado = dynamic(() => import("./MapaDelimitado"), { ssr: false });
@@ -38,22 +39,25 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen w-full">
-      <div className="flex-1 min-h-0">
-        <MapaDelimitado
-          figuras={figuras}
-          setFiguras={setFiguras}
-          figuraSeleccionada={figuraSeleccionada}
-          setFiguraSeleccionada={setFiguraSeleccionada}
-        />
-      </div>
-      <div className="w-full lg:w-80 bg-gray-100 p-4 overflow-y-auto mt-4 lg:mt-0 min-h-0">
-        <ListaDeFiguras
-          figuras={figuras}
-          figuraSeleccionada={figuraSeleccionada}
-          setFiguraSeleccionada={setFiguraSeleccionada}
-          eliminarFigura={eliminarFigura}
-        />
+    <div>
+      <BarraSuperior />
+      <div className="flex flex-col lg:flex-row w-full pt-2">
+        <div className="flex-1 min-h-0">
+          <MapaDelimitado
+            figuras={figuras}
+            setFiguras={setFiguras}
+            figuraSeleccionada={figuraSeleccionada}
+            setFiguraSeleccionada={setFiguraSeleccionada}
+          />
+        </div>
+        <div className="w-full lg:w-80 bg-gray-100 lg:mt-0 min-h-0">
+          <ListaDeFiguras
+            figuras={figuras}
+            figuraSeleccionada={figuraSeleccionada}
+            setFiguraSeleccionada={setFiguraSeleccionada}
+            eliminarFigura={eliminarFigura}
+          />
+        </div>
       </div>
     </div>
   );

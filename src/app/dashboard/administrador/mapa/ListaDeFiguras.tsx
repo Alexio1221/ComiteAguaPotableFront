@@ -14,9 +14,9 @@ interface ListaProps {
 
 export default function ListaDeFiguras({ figuras, figuraSeleccionada, setFiguraSeleccionada, eliminarFigura }: ListaProps) {
   return (
-    <div>
+    <div className="bg-gradient-to-l from-blue-500 to-cyan-400 p-6">
       <h3 className="font-semibold mb-2">Figuras guardadas</h3>
-      <ul>
+      <ul className="max-h-[650px] overflow-y-auto">
         {figuras.map(f => (
           <li key={f.idFigura} className="flex justify-between items-center mb-2 p-1 rounded hover:bg-gray-200">
             <span
