@@ -14,11 +14,12 @@ interface Aviso {
 }
 
 interface Props {
-  avisos: Aviso[]
-  setAvisos: React.Dispatch<React.SetStateAction<Aviso[]>>
+  avisos?: Aviso[] 
+  setAvisos?: React.Dispatch<React.SetStateAction<Aviso[]>>
+  onGuardarTituloFigura?: (titulo: string) => void
 }
 
-const FormularioAvisos: React.FC<Props> = ({ avisos, setAvisos }) => {
+const FormularioAvisos: React.FC<Props> = ({ avisos = [], setAvisos, onGuardarTituloFigura: onGuardarTituloFigura }) => {
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [fechaVigencia, setFechaVigencia] = useState('')
@@ -43,14 +44,27 @@ const FormularioAvisos: React.FC<Props> = ({ avisos, setAvisos }) => {
       })
 
       const nuevoAviso: Aviso = response.data
-      setAvisos([nuevoAviso, ...avisos])
+
+      // si setAvisos existe, lo usa (modo módulo)
+      if (typeof setAvisos === 'function') {
+        setAvisos([nuevoAviso, ...avisos])
+      }
+
+      // si viene del modal, devuelve el título
+      if (onGuardarTituloFigura) {
+        onGuardarTituloFigura(titulo)
+      }
+
       toast.success('Aviso creado correctamente.')
 
+      // limpiar
       setTitulo('')
       setDescripcion('')
       setFechaVigencia('')
       setImagen(null)
+
     } catch (error: any) {
+      console.error('Error al crear el aviso:', error)
       toast.error(error.response?.data?.mensaje || 'Ocurrió un error al crear el aviso.')
     }
   }

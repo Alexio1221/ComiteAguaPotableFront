@@ -9,6 +9,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 import ruta from "@/api/axios";
 import { toast } from "react-hot-toast";
+import ModalGuardar from "./ModalGuardar";
 
 const bounds: [[number, number], [number, number]] = [
   [-17.41546, -65.99998],
@@ -51,71 +52,6 @@ const obtenerIcono = (tipo: string) => {
   }
 };
 
-// Modal simple para guardar figuras
-function ModalGuardar({ visible, onClose, onGuardar, figuraTemporal }: any) {
-  const [nombre, setNombre] = useState("");
-  const [subtipo, setSubtipo] = useState("tanque");
-
-  if (!visible) return null;
-
-  const esMarcador = figuraTemporal?.layerType === "marker";
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-[1000]">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 className="text-lg font-semibold mb-4">Guardar Componente</h2>
-        <label className="text-sm text-gray-700">Descripcion del componente:</label>
-        <input
-          type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-1 mt-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Ej: Tanque principal"
-        />
-        {esMarcador && (
-          <>
-            <label className="text-sm text-gray-700">Tipo de equipo hidráulico:</label>
-            <select
-              value={subtipo}
-              onChange={(e) => setSubtipo(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="tanque">Tanque</option>
-              <option value="valvula">Válvula</option>
-              <option value="bomba">Bomba de agua</option>
-            </select>
-          </>
-        )}
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => {
-              setNombre("");
-              onClose();
-            }}
-            className="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => {
-              if (!nombre.trim()) {
-                toast.error("Ingresa un nombre antes de guardar");
-                return;
-              }
-              console.log("Subtipo", subtipo);
-              onGuardar(nombre, subtipo); // enviamos también el subtipo
-              setNombre("");
-              setSubtipo("tanque");
-            }}
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Guardar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Zona restringida del mapa
 function RestrictedAreaMask() {
